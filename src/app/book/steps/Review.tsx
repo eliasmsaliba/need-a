@@ -18,8 +18,8 @@ export function Review({ flow }: { flow: BookingFlow }) {
         <Tag variant="accent">Review submitted</Tag>
         <h2 className="text-[22px] font-medium">Thanks for booking with Need-A</h2>
         <p className="text-neutral-400 text-[13px] max-w-[50ch]">
-          {finalProvider.name} completed your {categoryName} job for R
-          {pricing.total.toFixed(2)}. A receipt has been sent to your email.
+          {finalProvider.name} completed your {categoryName} job for R{pricing.total.toFixed(2)}. A
+          receipt has been sent to your email.
         </p>
         <Button variant="secondary" onClick={flow.reset}>
           Book another service

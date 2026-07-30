@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-6aa60b81-e855-4638-bb69-ad25986e5bc6/styles.css">
+<script src="_ds/nocturne-6aa60b81-e855-4638-bb69-ad25986e5bc6/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}
+a{color:var(--color-accent-300)}
+a:hover{color:var(--color-accent-200)}
+.na-navitem:hover{background:var(--color-neutral-800)}
+.na-tbl th,.na-tbl td{white-space:nowrap}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);display:flex">
+
+<aside style="width:260px;flex:none;border-right:1px solid var(--color-neutral-800);padding:24px 16px;display:flex;flex-direction:column;gap:20px">
+<div class="nav-brand" style="padding:0 8px">Need-A Admin</div>
+<div class="field" style="gap:6px;padding:0 4px"><label style="font-size:11px;color:var(--color-neutral-500)">Signed in as</label>
+<select class="input" value="{{ role }}" onChange="{{ onRoleChange }}">
+<sc-for list="{{ roleOptions }}" as="r" hint-placeholder-count="3"><option value="{{ r.key }}">{{ r.label }}</option></sc-for>
+</select>
+</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ navItems }}" as="n" hint-placeholder-count="7">
+<div class="na-navitem" style="{{ n.rowStyle }}" onClick="{{ n.onSelect }}"><span style="{{ n.labelStyle }}">{{ n.label }}</span></div>
+</sc-for>
+</div>
+</aside>
+
+<main style="flex:1;padding:32px 40px;display:flex;flex-direction:column;gap:24px;max-width:1200px">
+
+<sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Overview</h2>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div class="card" style="padding:18px;gap:6px"><span class="card-kicker">Active jobs</span><span style="font:500 26px var(--font-heading)">{{ activeJobsCount }}</span></div>
+<div class="card" style="padding:18px;gap:6px"><span class="card-kicker">GMV today</span><span style="font:500 26px var(--font-heading)">R{{ gmvToday }}</span></div>
+<div class="card" style="padding:18px;gap:6px"><span class="card-kicker">Avg pro rating</span><span style="font:500 26px var(--font-heading)">{{ avgRating }}</span></div>
+<div class="card" style="padding:18px;gap:6px"><span class="card-kicker">Open disputes</span><span style="font:500 26px var(--font-heading)">{{ openDisputesCount }}</span></div>
+</div>
+<div class="card" style="padding:24px;gap:16px">
+<span class="card-title">Bookings by category</span>
+<div style="display:flex;align-items:flex-end;gap:20px;height:140px;padding-top:10px">
+<sc-for list="{{ chartBars }}" as="b" hint-placeholder-count="6">
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1">
+<div style="{{ b.barStyle }}"></div>
+<span style="font-size:11px;color:var(--color-neutral-400);text-align:center">{{ b.name }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<div class="card" style="padding:24px;gap:12px">
+<span class="card-title">Recent bookings</span>
+<table class="table na-tbl"><thead><tr><th>ID</th><th>Customer</th><th>Category</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
+<tbody><sc-for list="{{ recentBookings }}" as="rb" hint-placeholder-count="5">
+<tr><td>{{ rb.id }}</td><td>{{ rb.customer }}</td><td>{{ rb.category }}</td><td><span class="{{ rb.statusClass }}">{{ rb.status }}</span></td><td style="text-align:right">R{{ rb.amount }}</td></tr>
+</sc-for></tbody></table>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDispatch }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Dispatch queue</h2>
+<table class="table na-tbl">
+<thead><tr><th>ID</th><th>Customer</th><th>Category</th><th>Type</th><th>Status</th><th>Provider</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{ bookings }}" as="bk" hint-placeholder-count="8">
+<tr>
+<td>{{ bk.id }}</td><td>{{ bk.customer }}</td><td>{{ bk.category }}</td><td>{{ bk.type }}</td>
+<td><span class="{{ bk.statusClass }}">{{ bk.status }}</span></td>
+<td>
+<sc-if value="{{ bk.needsAssign }}" hint-placeholder-val="{{ false }}">
+<select class="input" style="font-size:12px;padding:4px 8px" value="" onChange="{{ bk.onAssign }}"><option value="">Assign pro…</option>
+<sc-for list="{{ activeProviders }}" as="p" hint-placeholder-count="3"><option value="{{ p.id }}">{{ p.name }}</option></sc-for>
+</select>
+</sc-if>
+<sc-if value="{{ bk.providerName }}" hint-placeholder-val="{{ false }}"><span>{{ bk.providerName }}</span></sc-if>
+</td>
+<td style="text-align:right">R{{ bk.amount }}</td>
+<td><sc-if value="{{ bk.canAdvance }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-secondary" onClick="{{ bk.onAdvance }}">{{ bk.advanceLabel }}</button></sc-if></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</sc-if>
+
+<sc-if value="{{ isProviders }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Providers</h2>
+<table class="table na-tbl">
+<thead><tr><th>Name</th><th>Badge</th><th>Rating</th><th>Jobs</th><th>Status</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{ providers }}" as="p" hint-placeholder-count="5">
+<tr><td>{{ p.name }}</td><td><span class="tag tag-accent">{{ p.badge }}</span></td><td>{{ p.rating }}</td><td>{{ p.jobs }}</td><td><span class="{{ p.statusClass }}">{{ p.status }}</span></td>
+<td style="display:flex;gap:8px">
+<sc-if value="{{ p.showVerify }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-secondary" onClick="{{ p.onVerify }}">Verify</button></sc-if>
+<sc-if value="{{ p.showSuspendToggle }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-ghost" onClick="{{ p.onToggleSuspend }}">{{ p.suspendLabel }}</button></sc-if>
+</td></tr>
+</sc-for>
+</tbody>
+</table>
+</sc-if>
+
+<sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Customers</h2>
+<table class="table na-tbl">
+<thead><tr><th>Name</th><th>Email</th><th>Jobs</th><th>Total spend</th><th>Status</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{ customers }}" as="c" hint-placeholder-count="5">
+<tr><td>{{ c.name }}</td><td>{{ c.email }}</td><td>{{ c.jobs }}</td><td>R{{ c.spend }}</td><td><span class="{{ c.statusClass }}">{{ c.status }}</span></td>
+<td><button type="button" class="btn btn-ghost" onClick="{{ c.onToggleSuspend }}">{{ c.suspendLabel }}</button></td></tr>
+</sc-for>
+</tbody>
+</table>
+</sc-if>
+
+<sc-if value="{{ isPayments }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Payments &amp; payouts</h2>
+<table class="table na-tbl">
+<thead><tr><th>ID</th><th>Provider</th><th style="text-align:right">Amount</th><th>Status</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{ payouts }}" as="po" hint-placeholder-count="4">
+<tr><td>{{ po.id }}</td><td>{{ po.provider }}</td><td style="text-align:right">R{{ po.amount }}</td><td><span class="{{ po.statusClass }}">{{ po.status }}</span></td>
+<td><sc-if value="{{ po.showPay }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-secondary" onClick="{{ po.onMarkPaid }}">Mark as paid</button></sc-if></td></tr>
+</sc-for>
+</tbody>
+</table>
+</sc-if>
+
+<sc-if value="{{ isCategories }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Categories &amp; pricing</h2>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+<div class="card" style="padding:16px 20px;flex-direction:row;align-items:center;gap:24px">
+<span style="flex:1;font-size:14px;font-weight:500">{{ cat.name }}</span>
+<div class="field" style="gap:4px;width:160px"><label style="font-size:11px">Call-out fee (R)</label><input class="input" type="number" value="{{ cat.calloutFee }}" onChange="{{ cat.onCalloutChange }}"></div>
+<div class="field" style="gap:4px;width:160px"><label style="font-size:11px">Base hourly rate (R)</label><input class="input" type="number" value="{{ cat.baseRate }}" onChange="{{ cat.onRateChange }}"></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReviews }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Reviews &amp; disputes</h2>
+<div style="display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ disputes }}" as="d" hint-placeholder-count="3">
+<div class="card" style="padding:18px;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span style="font-size:14px;font-weight:500">{{ d.id }} · {{ d.customer }} vs {{ d.provider }}</span>
+<span class="{{ d.statusClass }}">{{ d.status }}</span>
+</div>
+<p style="margin:0;font-size:13px;color:var(--color-neutral-300)">{{ d.reason }}</p>
+<sc-if value="{{ d.showActions }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px"><button type="button" class="btn btn-secondary" onClick="{{ d.onResolve }}">Resolve</button><button type="button" class="btn btn-ghost" onClick="{{ d.onDismiss }}">Dismiss</button></div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+</main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROLE_LABELS = { ops: 'Ops Admin', support: 'Support Agent', finance: 'Finance' };
+const NAV = [
+  { key:'dashboard', label:'Dashboard', roles:['ops','support','finance'] },
+  { key:'dispatch', label:'Dispatch queue', roles:['ops','support'] },
+  { key:'providers', label:'Providers', roles:['ops','support'] },
+  { key:'customers', label:'Customers', roles:['ops','support'] },
+  { key:'payments', label:'Payments & payouts', roles:['ops','finance'] },
+  { key:'categories', label:'Categories & pricing', roles:['ops','finance'] },
+  { key:'reviews', label:'Reviews & disputes', roles:['ops','support'] },
+];
+const BOOKING_STATUSES = ['Pending','Assigned','En route','Working','Done'];
+
+function seedProviders() {
+  return [
+    { id:'thabo', name:'Thabo M.', badge:'Verified', rating:4.9, jobs:128, status:'Active' },
+    { id:'sarah', name:'Sarah K.', badge:'Verified', rating:4.8, jobs:86, status:'Active' },
+    { id:'given', name:'Given P.', badge:'Elite', rating:5.0, jobs:240, status:'Active' },
+    { id:'nomvula', name:'Nomvula T.', badge:'New', rating:0, jobs:0, status:'Pending verification' },
+    { id:'kabelo', name:'Kabelo R.', badge:'Verified', rating:4.1, jobs:52, status:'Suspended' },
+  ];
+}
+function seedCustomers() {
+  return [
+    { id:'c1', name:'Naledi K.', email:'naledi@mail.co', jobs:12, spend:6240, status:'Active' },
+    { id:'c2', name:'Johan V.', email:'johan@mail.co', jobs:4, spend:2890, status:'Active' },
+    { id:'c3', name:'Amahle N.', email:'amahle@mail.co', jobs:1, spend:450, status:'Active' },
+    { id:'c4', name:'Peter S.', email:'peter@mail.co', jobs:7, spend:4120, status:'Active' },
+    { id:'c5', name:'Craig D.', email:'craig@mail.co', jobs:2, spend:0, status:'Suspended' },
+  ];
+}
+function seedBookings() {
+  return [
+    { id:'BK-1042', customer:'Naledi K.', category:'Plumbing', type:'Fix Now', status:'Pending', providerId:null, amount:620 },
+    { id:'BK-1041', customer:'Johan V.', category:'Electrical', type:'Schedule It', status:'Assigned', providerId:'sarah', amount:780 },
+    { id:'BK-1039', customer:'Amahle N.', category:'Home cleaning', type:'Fix Now', status:'En route', providerId:'given', amount:450 },
+    { id:'BK-1037', customer:'Peter S.', category:'Handyman', type:'Get Quotes', status:'Working', providerId:'thabo', amount:990 },
+    { id:'BK-1035', customer:'Zanele M.', category:'Appliance repair', type:'Fix Now', status:'Done', providerId:'thabo', amount:540 },
+    { id:'BK-1033', customer:'Riaan B.', category:'Gardening', type:'Schedule It', status:'Done', providerId:'sarah', amount:380 },
+    { id:'BK-1030', customer:'Lindiwe P.', category:'Plumbing', type:'Get Quotes', status:'Pending', providerId:null, amount:710 },
+    { id:'BK-1028', customer:'Craig D.', category:'Electrical', type:'Fix Now', status:'Cancelled', providerId:null, amount:0 },
+  ];
+}
+function seedCategories() {
+  return [
+    { id:'plumbing', name:'Plumbing', calloutFee:150, baseRate:350 },
+    { id:'electrical', name:'Electrical', calloutFee:150, baseRate:380 },
+    { id:'handyman', name:'Handyman', calloutFee:120, baseRate:300 },
+    { id:'cleaning', name:'Home cleaning', calloutFee:0, baseRate:250 },
+    { id:'appliance', name:'Appliance repair', calloutFee:150, baseRate:320 },
+    { id:'gardening', name:'Gardening', calloutFee:0, baseRate:220 },
+  ];
+}
+function seedPayouts() {
+  return [
+    { id:'PO-501', provider:'Thabo M.', amount:7820, status:'Pending' },
+    { id:'PO-500', provider:'Sarah K.', amount:5140, status:'Pending' },
+    { id:'PO-499', provider:'Given P.', amount:9960, status:'Paid' },
+    { id:'PO-498', provider:'Kabelo R.', amount:1200, status:'Paid' },
+  ];
+}
+function seedDisputes() {
+  return [
+    { id:'D-12', customer:'Craig D.', provider:'Kabelo R.', reason:'No-show, then rude on call.', status:'Open' },
+    { id:'D-11', customer:'Amahle N.', provider:'Given P.', reason:'Overcharged for materials vs. quote.', status:'Open' },
+    { id:'D-9', customer:'Johan V.', provider:'Sarah K.', reason:'Damaged property claim.', status:'Resolved' },
+  ];
+}
+
+function statusClass(status) {
+  if (['Active','Done','Paid','Resolved'].includes(status)) return 'tag tag-accent';
+  if (['Suspended','Cancelled'].includes(status)) return 'tag tag-neutral';
+  return 'tag tag-outline';
+}
+
+class Component extends DCLogic {
+  state = {
+    role: 'ops',
+    section: 'dashboard',
+    providers: seedProviders(),
+    customers: seedCustomers(),
+    bookings: seedBookings(),
+    categories: seedCategories(),
+    payouts: seedPayouts(),
+    disputes: seedDisputes(),
+  };
+
+  onRoleChange(e) {
+    const role = e.target.value;
+    const allowed = NAV.filter(n => n.roles.includes(role)).map(n => n.key);
+    this.setState(s => ({ role, section: allowed.includes(s.section) ? s.section : 'dashboard' }));
+  }
+  setSection(key) { this.setState({ section: key }); }
+
+  assignProvider(bookingId, providerId) {
+    if (!providerId) return;
+    this.setState(s => ({
+      bookings: s.bookings.map(b => b.id === bookingId ? { ...b, providerId, status: 'Assigned' } : b)
+    }));
+  }
+  advanceBookingStatus(bookingId) {
+    this.setState(s => ({
+      bookings: s.bookings.map(b => {
+        if (b.id !== bookingId) return b;
+        const i = BOOKING_STATUSES.indexOf(b.status);
+        return { ...b, status: BOOKING_STATUSES[Math.min(BOOKING_STATUSES.length - 1, i + 1)] };
+      })
+    }));
+  }
+  verifyProvider(id) { this.setState(s => ({ providers: s.providers.map(p => p.id === id ? { ...p, status:'Active' } : p) })); }
+  toggleProviderSuspend(id) {
+    this.setState(s => ({ providers: s.providers.map(p => p.id === id ? { ...p, status: p.status === 'Suspended' ? 'Active' : 'Suspended' } : p) }));
+  }
+  toggleCustomerSuspend(id) {
+    this.setState(s => ({ customers: s.customers.map(c => c.id === id ? { ...c, status: c.status === 'Suspended' ? 'Active' : 'Suspended' } : c) }));
+  }
+  markPayoutPaid(id) { this.setState(s => ({ payouts: s.payouts.map(p => p.id === id ? { ...p, status:'Paid' } : p) })); }
+  updateCategory(id, field, value) {
+    this.setState(s => ({ categories: s.categories.map(c => c.id === id ? { ...c, [field]: Number(value) || 0 } : c) }));
+  }
+  resolveDispute(id) { this.setState(s => ({ disputes: s.disputes.map(d => d.id === id ? { ...d, status:'Resolved' } : d) })); }
+  dismissDispute(id) { this.setState(s => ({ disputes: s.disputes.map(d => d.id === id ? { ...d, status:'Dismissed' } : d) })); }
+
+  renderVals() {
+    const s = this.state;
+    const roleOptions = Object.keys(ROLE_LABELS).map(k => ({ key: k, label: ROLE_LABELS[k] }));
+    const navItems = NAV.filter(n => n.roles.includes(s.role)).map(n => ({
+      key: n.key, label: n.label,
+      rowStyle: `padding:10px 12px;border-radius:var(--radius-md,8px);cursor:pointer;background:${s.section === n.key ? 'var(--color-neutral-800)' : 'transparent'}`,
+      labelStyle: `font-size:13px;color:${s.section === n.key ? 'var(--color-text)' : 'var(--color-neutral-400)'}`,
+      onSelect: () => this.setSection(n.key),
+    }));
+
+    const providerName = id => (s.providers.find(p => p.id === id) || {}).name;
+    const activeProviders = s.providers.filter(p => p.status === 'Active').map(p => ({ id: p.id, name: p.name }));
+
+    const bookings = s.bookings.map(bk => ({
+      ...bk,
+      statusClass: statusClass(bk.status),
+      providerName: providerName(bk.providerId),
+      needsAssign: !bk.providerId && bk.status !== 'Cancelled',
+      canAdvance: bk.providerId && !['Done','Cancelled'].includes(bk.status),
+      advanceLabel: `Mark ${BOOKING_STATUSES[Math.min(4, BOOKING_STATUSES.indexOf(bk.status) + 1)]}`,
+      onAssign: e => this.assignProvider(bk.id, e.target.value),
+      onAdvance: () => this.advanceBookingStatus(bk.id),
+    }));
+
+    const recentBookings = bookings.slice(0, 5);
+    const activeJobsCount = s.bookings.filter(b => !['Done','Cancelled'].includes(b.status)).length;
+    const gmvToday = s.bookings.filter(b => b.status !== 'Cancelled').reduce((sum, b) => sum + b.amount, 0);
+    const activeProviderRatings = s.providers.filter(p => p.rating > 0).map(p => p.rating);
+    const avgRating = (activeProviderRatings.reduce((a, b) => a + b, 0) / activeProviderRatings.length).toFixed(1);
+    const openDisputesCount = s.disputes.filter(d => d.status === 'Open').length;
+
+    const catCounts = {};
+    s.bookings.forEach(b => { catCounts[b.category] = (catCounts[b.category] || 0) + 1; });
+    const maxCount = Math.max(1, ...Object.values(catCounts));
+    const chartBars = Object.keys(catCounts).map(name => ({
+      name, barStyle: `width:36px;border-radius:4px 4px 0 0;background:var(--color-accent-500);height:${Math.max(6, Math.round(catCounts[name] / maxCount * 110))}px`,
+    }));
+
+    const providers = s.providers.map(p => ({
+      ...p, statusClass: statusClass(p.status),
+      showVerify: p.status === 'Pending verification',
+      showSuspendToggle: p.status !== 'Pending verification',
+      suspendLabel: p.status === 'Suspended' ? 'Reinstate' : 'Suspend',
+      onVerify: () => this.verifyProvider(p.id),
+      onToggleSuspend: () => this.toggleProviderSuspend(p.id),
+    }));
+
+    const customers = s.customers.map(c => ({
+      ...c, statusClass: statusClass(c.status),
+      suspendLabel: c.status === 'Suspended' ? 'Reinstate' : 'Suspend',
+      onToggleSuspend: () => this.toggleCustomerSuspend(c.id),
+    }));
+
+    const payouts = s.payouts.map(p => ({
+      ...p, statusClass: statusClass(p.status), showPay: p.status === 'Pending',
+      onMarkPaid: () => this.markPayoutPaid(p.id),
+    }));
+
+    const categories = s.categories.map(c => ({
+      ...c,
+      onCalloutChange: e => this.updateCategory(c.id, 'calloutFee', e.target.value),
+      onRateChange: e => this.updateCategory(c.id, 'baseRate', e.target.value),
+    }));
+
+    const disputes = s.disputes.map(d => ({
+      ...d, statusClass: statusClass(d.status), showActions: d.status === 'Open',
+      onResolve: () => this.resolveDispute(d.id), onDismiss: () => this.dismissDispute(d.id),
+    }));
+
+    return {
+      role: s.role, roleOptions, onRoleChange: e => this.onRoleChange(e), navItems,
+      isDashboard: s.section === 'dashboard', isDispatch: s.section === 'dispatch', isProviders: s.section === 'providers',
+      isCustomers: s.section === 'customers', isPayments: s.section === 'payments', isCategories: s.section === 'categories', isReviews: s.section === 'reviews',
+      activeJobsCount, gmvToday, avgRating, openDisputesCount, chartBars, recentBookings,
+      bookings, activeProviders, providers, customers, payouts, categories, disputes,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

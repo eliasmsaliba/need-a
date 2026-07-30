@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-6aa60b81-e855-4638-bb69-ad25986e5bc6/styles.css">
+<script src="_ds/nocturne-6aa60b81-e855-4638-bb69-ad25986e5bc6/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}
+a{color:var(--color-accent-300)}
+a:hover{color:var(--color-accent-200)}
+.na-tag-toggle{cursor:pointer}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);display:flex;flex-direction:column;align-items:center;padding:56px 24px">
+
+<div style="text-align:center;margin-bottom:24px">
+<div class="nav-brand" style="font-size:20px">Need-A</div>
+<p style="margin:4px 0 0;font-size:12.5px;color:var(--color-neutral-400)">Verified pros · Money-back guarantee · Secure payment</p>
+</div>
+
+<div class="seg" style="width:fit-content;margin-bottom:24px">
+<label class="seg-opt"><input type="radio" name="mode" checked="{{ isSignupMode }}" onChange="{{ onModeSignup }}"/>Sign up</label>
+<label class="seg-opt"><input type="radio" name="mode" checked="{{ isLoginMode }}" onChange="{{ onModeLogin }}"/>Log in</label>
+</div>
+
+<sc-if value="{{ isSignupMode }}" hint-placeholder-val="{{ true }}">
+<div class="card elev-md" style="width:520px;padding:36px;gap:24px">
+
+<div style="display:flex;gap:0;justify-content:space-between">
+<sc-for list="{{ signupSteps }}" as="st" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1">
+<div style="{{ st.dotStyle }}">{{ st.num }}</div>
+<span style="{{ st.labelStyle }}">{{ st.label }}</span>
+</div>
+</sc-for>
+</div>
+
+<sc-if value="{{ isAccountStep }}" hint-placeholder-val="{{ true }}">
+<h2 style="margin:0;font:500 20px var(--font-heading)">Create your account</h2>
+<div class="field"><label>Email</label><input class="input" type="email" value="{{ accEmail }}" onChange="{{ onAccEmailChange }}"></div>
+<div class="field"><label>Phone</label><input class="input" type="tel" value="{{ accPhone }}" onChange="{{ onAccPhoneChange }}"></div>
+<div class="field"><label>Password</label><input class="input" type="password" value="{{ accPassword }}" onChange="{{ onAccPasswordChange }}"></div>
+<div class="field"><label>Confirm password</label><input class="input" type="password" value="{{ accConfirm }}" onChange="{{ onAccConfirmChange }}"></div>
+<sc-if value="{{ accMismatch }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--color-accent-300)">Passwords don't match.</span></sc-if>
+<button type="button" class="btn btn-primary btn-block" disabled="{{ accountDisabled }}" onClick="{{ nextSignup }}">Continue</button>
+</sc-if>
+
+<sc-if value="{{ isVerifyStep }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 20px var(--font-heading)">Verify your email</h2>
+<p style="margin:0;font-size:13px;color:var(--color-neutral-400)">Enter the 6-digit code sent to {{ accEmail }}. (Demo code: 123456)</p>
+<div class="field"><label>Verification code</label><input class="input" value="{{ otp }}" onChange="{{ onOtpChange }}" maxlength="6"></div>
+<sc-if value="{{ otpError }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--color-accent-300)">That code isn't right — try 123456.</span></sc-if>
+<button type="button" class="btn btn-primary btn-block" disabled="{{ otpDisabled }}" onClick="{{ verifyOtp }}">Verify</button>
+<button type="button" class="btn btn-ghost" style="width:fit-content">Resend code</button>
+</sc-if>
+
+<sc-if value="{{ isProfileStep }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 20px var(--font-heading)">Complete your profile</h2>
+<div style="display:flex;gap:16px;align-items:center">
+<image-slot id="cust-avatar" shape="circle" style="width:72px;height:72px" placeholder="Photo"></image-slot>
+<span style="font-size:12px;color:var(--color-neutral-400)">Add a profile photo (optional)</span>
+</div>
+<div class="field"><label>Full name</label><input class="input" value="{{ profName }}" onChange="{{ onProfNameChange }}"></div>
+<div class="field"><label>Phone</label><input class="input" value="{{ profPhone }}" onChange="{{ onProfPhoneChange }}"></div>
+
+<div class="field" style="gap:8px">
+<label>Home addresses</label>
+<sc-for list="{{ addresses }}" as="a" hint-placeholder-count="1">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--color-neutral-800);border-radius:var(--radius-md,8px)">
+<span style="font-size:13px">{{ a.label }} · {{ a.text }}</span>
+<button type="button" class="btn btn-ghost" onClick="{{ a.onRemove }}">Remove</button>
+</div>
+</sc-for>
+<div style="display:flex;gap:8px">
+<input class="input" placeholder="Label (e.g. Home)" value="{{ newAddrLabel }}" onChange="{{ onNewAddrLabelChange }}" style="width:140px">
+<input class="input" placeholder="Address" value="{{ newAddrText }}" onChange="{{ onNewAddrTextChange }}" style="flex:1">
+<button type="button" class="btn btn-secondary" onClick="{{ addAddress }}">Add</button>
+</div>
+</div>
+
+<div class="field" style="gap:6px">
+<label>Payment method</label>
+<div class="seg"><sc-for list="{{ paymentOptions }}" as="po" hint-placeholder-count="2"><label class="seg-opt"><input type="radio" name="pay" checked="{{ po.checked }}" onChange="{{ po.onSelect }}"/>{{ po.label }}</label></sc-for></div>
+</div>
+<sc-if value="{{ isCardPayment }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:10px">
+<input class="input" placeholder="Card number" value="{{ cardNumber }}" onChange="{{ onCardNumberChange }}" style="flex:2">
+<input class="input" placeholder="MM/YY" value="{{ cardExpiry }}" onChange="{{ onCardExpiryChange }}" style="flex:1">
+<input class="input" placeholder="CVC" value="{{ cardCvc }}" onChange="{{ onCardCvcChange }}" style="flex:1">
+</div>
+</sc-if>
+<sc-if value="{{ isEftPayment }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:12.5px;color:var(--color-neutral-400)">You'll approve payment via your banking app at checkout.</p></sc-if>
+
+<div class="field" style="gap:8px">
+<label>Notification preferences</label>
+<sc-for list="{{ notifChannels }}" as="n" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px">{{ n.label }}</span><div class="seg"><label class="seg-opt"><input type="radio" checked="{{ n.onChecked }}" onChange="{{ n.onOn }}"/>On</label><label class="seg-opt"><input type="radio" checked="{{ n.offChecked }}" onChange="{{ n.onOff }}"/>Off</label></div></div>
+</sc-for>
+</div>
+
+<button type="button" class="btn btn-primary btn-block" disabled="{{ profileDisabled }}" onClick="{{ finishSignup }}">Create account</button>
+</sc-if>
+
+<sc-if value="{{ isDoneStep }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="width:fit-content">Account created</span>
+<h2 style="margin:0;font:500 20px var(--font-heading)">Welcome to Need-A, {{ profFirstName }}</h2>
+<p style="margin:0;font-size:13px;color:var(--color-neutral-400)">Your profile is set up. You're ready to book a verified pro.</p>
+<a href="./Need-A Prototype.dc.html" class="btn btn-primary btn-block" style="text-align:center;text-decoration:none">Continue to app</a>
+</sc-if>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isLoginMode }}" hint-placeholder-val="{{ false }}">
+<div class="card elev-md" style="width:420px;padding:36px;gap:20px">
+
+<sc-if value="{{ !forgotMode && !loginSubmitted }}" hint-placeholder-val="{{ true }}">
+<h2 style="margin:0;font:500 20px var(--font-heading)">Log in</h2>
+<div class="field"><label>Email</label><input class="input" type="email" value="{{ loginEmail }}" onChange="{{ onLoginEmailChange }}"></div>
+<div class="field"><label>Password</label><input class="input" type="password" value="{{ loginPassword }}" onChange="{{ onLoginPasswordChange }}"></div>
+<button type="button" class="btn btn-primary btn-block" disabled="{{ loginDisabled }}" onClick="{{ submitLogin }}">Log in</button>
+<button type="button" class="btn btn-ghost" style="width:fit-content" onClick="{{ openForgot }}">Forgot password?</button>
+</sc-if>
+
+<sc-if value="{{ forgotModeNotSent }}" hint-placeholder-val="{{ false }}">
+<h2 style="margin:0;font:500 20px var(--font-heading)">Reset your password</h2>
+<div class="field"><label>Email</label><input class="input" type="email" value="{{ forgotEmail }}" onChange="{{ onForgotEmailChange }}"></div>
+<button type="button" class="btn btn-primary btn-block" disabled="{{ forgotDisabled }}" onClick="{{ sendReset }}">Send reset link</button>
+<button type="button" class="btn btn-ghost" style="width:fit-content" onClick="{{ closeForgot }}">Back to log in</button>
+</sc-if>
+
+<sc-if value="{{ forgotSent }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="width:fit-content">Reset link sent</span>
+<p style="margin:0;font-size:13px;color:var(--color-neutral-400)">Check {{ forgotEmail }} for a link to reset your password.</p>
+<button type="button" class="btn btn-secondary" style="width:fit-content" onClick="{{ closeForgot }}">Back to log in</button>
+</sc-if>
+
+<sc-if value="{{ loginSubmitted }}" hint-placeholder-val="{{ false }}">
+<span class="tag tag-accent" style="width:fit-content">Logged in</span>
+<h2 style="margin:0;font:500 20px var(--font-heading)">Welcome back</h2>
+<a href="./Need-A Prototype.dc.html" class="btn btn-primary btn-block" style="text-align:center;text-decoration:none">Continue to app</a>
+</sc-if>
+
+</div>
+</sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const SIGNUP_STEPS = ['account','verify','profile','done'];
+const SIGNUP_LABELS = { account:'Account', verify:'Verify', profile:'Profile', done:'Done' };
+
+class Component extends DCLogic {
+  state = {
+    mode: 'signup',
+    signupStep: 0,
+    accEmail: '', accPhone: '', accPassword: '', accConfirm: '',
+    otp: '', otpError: false,
+    profName: '', profPhone: '',
+    addresses: [], newAddrLabel: '', newAddrText: '',
+    payment: 'card', cardNumber: '', cardExpiry: '', cardCvc: '',
+    notif: { sms: true, email: true, push: false },
+    loginEmail: '', loginPassword: '', loginSubmitted: false,
+    forgotMode: false, forgotEmail: '', forgotSent: false,
+  };
+
+  onModeSignup() { this.setState({ mode: 'signup' }); }
+  onModeLogin() { this.setState({ mode: 'login' }); }
+
+  onAccEmailChange(e) { this.setState({ accEmail: e.target.value }); }
+  onAccPhoneChange(e) { this.setState({ accPhone: e.target.value }); }
+  onAccPasswordChange(e) { this.setState({ accPassword: e.target.value }); }
+  onAccConfirmChange(e) { this.setState({ accConfirm: e.target.value }); }
+  onOtpChange(e) { this.setState({ otp: e.target.value.replace(/\D/g,'').slice(0,6), otpError: false }); }
+  onProfNameChange(e) { this.setState({ profName: e.target.value }); }
+  onProfPhoneChange(e) { this.setState({ profPhone: e.target.value }); }
+  onNewAddrLabelChange(e) { this.setState({ newAddrLabel: e.target.value }); }
+  onNewAddrTextChange(e) { this.setState({ newAddrText: e.target.value }); }
+  onCardNumberChange(e) { this.setState({ cardNumber: e.target.value }); }
+  onCardExpiryChange(e) { this.setState({ cardExpiry: e.target.value }); }
+  onCardCvcChange(e) { this.setState({ cardCvc: e.target.value }); }
+  onLoginEmailChange(e) { this.setState({ loginEmail: e.target.value }); }
+  onLoginPasswordChange(e) { this.setState({ loginPassword: e.target.value }); }
+  onForgotEmailChange(e) { this.setState({ forgotEmail: e.target.value }); }
+
+  nextSignup() { this.setState(s => ({ signupStep: Math.min(SIGNUP_STEPS.length - 1, s.signupStep + 1) })); }
+  verifyOtp() {
+    if (this.state.otp === '123456') this.setState(s => ({ signupStep: Math.min(SIGNUP_STEPS.length - 1, s.signupStep + 1), otpError: false }));
+    else this.setState({ otpError: true });
+  }
+  addAddress() {
+    const { newAddrLabel, newAddrText } = this.state;
+    if (!newAddrText) return;
+    this.setState(s => ({ addresses: [...s.addresses, { label: newAddrLabel || 'Address', text: newAddrText }], newAddrLabel: '', newAddrText: '' }));
+  }
+  removeAddress(i) { this.setState(s => ({ addresses: s.addresses.filter((_, idx) => idx !== i) })); }
+  setPayment(v) { this.setState({ payment: v }); }
+  toggleNotif(channel, val) { this.setState(s => ({ notif: { ...s.notif, [channel]: val } })); }
+  finishSignup() { this.setState(s => ({ signupStep: SIGNUP_STEPS.length - 1 })); }
+
+  submitLogin() { this.setState({ loginSubmitted: true }); }
+  openForgot() { this.setState({ forgotMode: true, forgotSent: false }); }
+  closeForgot() { this.setState({ forgotMode: false, forgotSent: false }); }
+  sendReset() { this.setState({ forgotSent: true }); }
+
+  renderVals() {
+    const s = this.state;
+    const stepIdx = s.signupStep;
+    const signupSteps = SIGNUP_STEPS.map((k, i) => {
+      const active = i === stepIdx, completed = i < stepIdx;
+      const bg = completed || active ? 'var(--color-accent-500)' : 'var(--color-neutral-800)';
+      const color = completed || active ? 'var(--color-bg)' : 'var(--color-neutral-500)';
+      return {
+        num: i + 1, label: SIGNUP_LABELS[k],
+        dotStyle: `width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 11px var(--font-body);background:${bg};color:${color}`,
+        labelStyle: `font-size:11px;color:${active ? 'var(--color-text)' : 'var(--color-neutral-500)'}`,
+      };
+    });
+
+    const accMismatch = s.accConfirm.length > 0 && s.accPassword !== s.accConfirm;
+    const accountDisabled = !(s.accEmail && s.accPassword.length >= 6 && s.accPassword === s.accConfirm);
+
+    const addresses = s.addresses.map((a, i) => ({ label: a.label, text: a.text, onRemove: () => this.removeAddress(i) }));
+    const paymentOptions = [{ key:'card', label:'Card' }, { key:'eft', label:'Instant EFT' }].map(p => ({ ...p, checked: s.payment === p.key, onSelect: () => this.setPayment(p.key) }));
+    const notifChannels = [
+      { key:'sms', label:'SMS' }, { key:'email', label:'Email' }, { key:'push', label:'Push notifications' }
+    ].map(n => ({
+      label: n.label,
+      onChecked: s.notif[n.key] === true, offChecked: s.notif[n.key] === false,
+      onOn: () => this.toggleNotif(n.key, true), onOff: () => this.toggleNotif(n.key, false),
+    }));
+
+    const profileDisabled = !s.profName;
+
+    return {
+      isSignupMode: s.mode === 'signup', isLoginMode: s.mode === 'login',
+      onModeSignup: () => this.onModeSignup(), onModeLogin: () => this.onModeLogin(),
+      signupSteps,
+      isAccountStep: stepIdx === 0, isVerifyStep: stepIdx === 1, isProfileStep: stepIdx === 2, isDoneStep: stepIdx === 3,
+      accEmail: s.accEmail, accPhone: s.accPhone, accPassword: s.accPassword, accConfirm: s.accConfirm, accMismatch, accountDisabled,
+      onAccEmailChange: e => this.onAccEmailChange(e), onAccPhoneChange: e => this.onAccPhoneChange(e), onAccPasswordChange: e => this.onAccPasswordChange(e), onAccConfirmChange: e => this.onAccConfirmChange(e),
+      nextSignup: () => this.nextSignup(),
+      otp: s.otp, otpError: s.otpError, otpDisabled: s.otp.length !== 6, onOtpChange: e => this.onOtpChange(e), verifyOtp: () => this.verifyOtp(),
+      profName: s.profName, profPhone: s.profPhone, profFirstName: (s.profName.split(' ')[0] || 'there'),
+      onProfNameChange: e => this.onProfNameChange(e), onProfPhoneChange: e => this.onProfPhoneChange(e),
+      addresses, newAddrLabel: s.newAddrLabel, newAddrText: s.newAddrText,
+      onNewAddrLabelChange: e => this.onNewAddrLabelChange(e), onNewAddrTextChange: e => this.onNewAddrTextChange(e), addAddress: () => this.addAddress(),
+      paymentOptions, isCardPayment: s.payment === 'card', isEftPayment: s.payment === 'eft',
+      cardNumber: s.cardNumber, cardExpiry: s.cardExpiry, cardCvc: s.cardCvc,
+      onCardNumberChange: e => this.onCardNumberChange(e), onCardExpiryChange: e => this.onCardExpiryChange(e), onCardCvcChange: e => this.onCardCvcChange(e),
+      notifChannels, profileDisabled, finishSignup: () => this.finishSignup(),
+      loginEmail: s.loginEmail, loginPassword: s.loginPassword, loginDisabled: !(s.loginEmail && s.loginPassword), loginSubmitted: s.loginSubmitted,
+      onLoginEmailChange: e => this.onLoginEmailChange(e), onLoginPasswordChange: e => this.onLoginPasswordChange(e), submitLogin: () => this.submitLogin(),
+      forgotMode: s.forgotMode, forgotModeNotSent: s.forgotMode && !s.forgotSent, forgotSent: s.forgotSent, forgotEmail: s.forgotEmail, forgotDisabled: !s.forgotEmail,
+      openForgot: () => this.openForgot(), closeForgot: () => this.closeForgot(), sendReset: () => this.sendReset(),
+      onForgotEmailChange: e => this.onForgotEmailChange(e),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
