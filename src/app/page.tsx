@@ -6,9 +6,20 @@ import { CATEGORIES } from "./book/data";
 export default function Home() {
   return (
     <div className="flex-1 flex flex-col">
-      <nav className="flex items-center gap-4 py-3 px-10">
+      <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 py-3 px-4 md:px-10">
         <span className="text-lg font-medium mr-auto">Need-A</span>
-        <div className="flex gap-2.5">
+        <div className="flex flex-wrap items-center gap-5">
+          <Link href="/login" className="text-sm text-neutral-300 hover:text-accent">
+            Customer
+          </Link>
+          <Link href="/pro/login" className="text-sm text-neutral-300 hover:text-accent">
+            Pro
+          </Link>
+          <Link href="/admin/login" className="text-sm text-neutral-300 hover:text-accent">
+            Admin
+          </Link>
+        </div>
+        <div className="flex flex-wrap gap-2.5">
           <Tag variant="outline">Verified pros</Tag>
           <Tag variant="outline">Money-back guarantee</Tag>
           <Tag variant="outline">Secure payment</Tag>
