@@ -8,12 +8,15 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-export const userRole = pgEnum("user_role", ["customer", "provider"]);
+export const userRole = pgEnum("user_role", ["customer", "provider", "admin"]);
+export type UserRole = (typeof userRole.enumValues)[number];
 export const providerStatus = pgEnum("provider_status", [
   "pending_verification",
   "active",
   "suspended",
 ]);
+export const customerStatus = pgEnum("customer_status", ["active", "suspended"]);
+export const adminSubRole = pgEnum("admin_sub_role", ["ops", "support", "finance"]);
 export const paymentMethod = pgEnum("payment_method", ["card", "eft"]);
 export const otpPurpose = pgEnum("otp_purpose", ["verify_email"]);
 
@@ -38,6 +41,7 @@ export const customerProfiles = pgTable("customer_profiles", {
   notifSms: boolean("notif_sms").notNull().default(true),
   notifEmail: boolean("notif_email").notNull().default(true),
   notifPush: boolean("notif_push").notNull().default(false),
+  status: customerStatus("status").notNull().default("active"),
 });
 
 export const addresses = pgTable("addresses", {
@@ -71,6 +75,13 @@ export const providerProfiles = pgTable("provider_profiles", {
   accountNumber: text("account_number").notNull().default(""),
   branchCode: text("branch_code").notNull().default(""),
   status: providerStatus("status").notNull().default("pending_verification"),
+});
+
+export const adminProfiles = pgTable("admin_profiles", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  subRole: adminSubRole("sub_role").notNull().default("ops"),
 });
 
 export const otpCodes = pgTable("otp_codes", {

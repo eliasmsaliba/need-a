@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs";
 import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { AuthError } from "next-auth";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { db } from "@/db";
-import { users } from "@/db/schema";
+import { users, type UserRole } from "@/db/schema";
 import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 import { issuePasswordResetToken, consumePasswordResetToken } from "@/lib/password-reset";
 
@@ -66,7 +66,7 @@ export async function resendOtpAction(userId: string): Promise<{ success: true }
 export async function loginAction(
   email: string,
   password: string,
-): Promise<{ success: true; role: "customer" | "provider" } | { error: string }> {
+): Promise<{ success: true; role: UserRole } | { error: string }> {
   try {
     await signIn("credentials", { email, password, redirect: false });
   } catch (err) {
@@ -88,7 +88,7 @@ export async function requestPasswordResetAction(email: string): Promise<{ succe
 export async function resetPasswordAction(
   token: string,
   newPassword: string,
-): Promise<{ success: true; role: "customer" | "provider" } | { error: string }> {
+): Promise<{ success: true; role: UserRole } | { error: string }> {
   const userId = await consumePasswordResetToken(token);
   if (!userId) return { error: "This reset link is invalid or has expired." };
 
@@ -100,4 +100,8 @@ export async function resetPasswordAction(
     .returning({ role: users.role });
 
   return { success: true, role: user.role };
+}
+
+export async function logoutAction() {
+  await signOut({ redirect: false });
 }

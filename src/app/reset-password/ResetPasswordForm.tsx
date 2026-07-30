@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { resetPasswordAction } from "../(auth)/actions";
+import type { UserRole } from "@/db/schema";
 
 export function ResetPasswordForm() {
   const token = useSearchParams().get("token") ?? "";
@@ -16,7 +17,7 @@ export function ResetPasswordForm() {
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ role: "customer" | "provider" } | null>(null);
+  const [result, setResult] = useState<{ role: UserRole } | null>(null);
 
   const mismatch = confirm.length > 0 && password !== confirm;
   const disabled = !(token && password.length >= 6 && password === confirm);
@@ -46,7 +47,8 @@ export function ResetPasswordForm() {
   }
 
   if (result) {
-    const loginHref = result.role === "provider" ? "/pro/login" : "/login";
+    const loginHref =
+      result.role === "provider" ? "/pro/login" : result.role === "admin" ? "/admin/login" : "/login";
     return (
       <Card elevation="md" className="w-full max-w-[420px] p-9 gap-4">
         <Tag variant="accent" className="w-fit">

@@ -1,0 +1,66 @@
+import { Tag } from "@/components/ui/Tag";
+import { Button } from "@/components/ui/Button";
+import { Table, TD, TH, TR } from "@/components/ui/Table";
+import { statusVariant } from "../data";
+import type { AdminConsoleFlow } from "../useAdminConsole";
+
+export function Providers({ flow }: { flow: AdminConsoleFlow }) {
+  const { state, verifyProvider, toggleProviderSuspend } = flow;
+
+  return (
+    <>
+      <h2 className="text-[22px] font-medium">Providers</h2>
+      <Table>
+        <thead>
+          <TR>
+            <TH>Name</TH>
+            <TH>Badge</TH>
+            <TH>Rating</TH>
+            <TH>Jobs</TH>
+            <TH>Status</TH>
+            <TH></TH>
+          </TR>
+        </thead>
+        <tbody>
+          {state.providers.map((p) => {
+            const showVerify = p.status === "Pending verification";
+            return (
+              <TR key={p.id}>
+                <TD>{p.name}</TD>
+                <TD>
+                  <Tag variant="accent">{p.badge}</Tag>
+                </TD>
+                <TD>{p.rating}</TD>
+                <TD>{p.jobs}</TD>
+                <TD>
+                  <Tag variant={statusVariant(p.status)}>{p.status}</Tag>
+                </TD>
+                <TD>
+                  <div className="flex gap-2">
+                    {showVerify && (
+                      <Button variant="secondary" onClick={() => verifyProvider(p.id)}>
+                        Verify
+                      </Button>
+                    )}
+                    {!showVerify && (
+                      <Button variant="ghost" onClick={() => toggleProviderSuspend(p.id)}>
+                        {p.status === "Suspended" ? "Reinstate" : "Suspend"}
+                      </Button>
+                    )}
+                  </div>
+                </TD>
+              </TR>
+            );
+          })}
+          {state.providers.length === 0 && (
+            <TR>
+              <TD colSpan={6} className="text-neutral-400">
+                No providers have signed up yet.
+              </TD>
+            </TR>
+          )}
+        </tbody>
+      </Table>
+    </>
+  );
+}
