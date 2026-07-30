@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-6aa60b81-e855-4638-bb69-ad25986e5bc6/styles.css">
+<script src="_ds/nocturne-6aa60b81-e855-4638-bb69-ad25986e5bc6/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}
+a{color:var(--color-accent-300)}
+a:hover{color:var(--color-accent-200)}
+.na-catrow:hover{background:var(--color-neutral-800)}
+.na-provcard:hover{border-color:var(--color-accent-500)}
+.na-star:hover{opacity:.85}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);padding-bottom:80px">
+
+<div class="nav" style="padding:0 40px">
+<span class="nav-brand">Need-A</span>
+<div style="display:flex;gap:10px">
+<span class="tag tag-outline">Verified pros</span>
+<span class="tag tag-outline">Money-back guarantee</span>
+<span class="tag tag-outline">Secure payment</span>
+</div>
+</div>
+
+<div style="display:flex;gap:32px;max-width:1280px;margin:0 auto;padding:32px 24px 0">
+
+<aside style="width:260px;flex:none;display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="9">
+<div style="{{ s.rowStyle }}">
+<div style="{{ s.numStyle }}">{{ s.num }}</div>
+<span style="{{ s.labelStyle }}">{{ s.label }}</span>
+</div>
+</sc-for>
+<div class="card" style="margin-top:24px;padding:16px;gap:10px;display:flex;flex-direction:column">
+<span class="card-title" style="font-size:13px">Why customers trust Need-A</span>
+<div style="display:flex;flex-direction:column;gap:6px">
+<span class="tag tag-outline" style="width:fit-content">ID-verified pros</span>
+<span class="tag tag-outline" style="width:fit-content">30–90 day guarantee</span>
+<span class="tag tag-outline" style="width:fit-content">Upfront pricing</span>
+</div>
+</div>
+</aside>
+
+<section class="card elev-md" style="flex:1;padding:36px;display:flex;flex-direction:column;gap:24px;min-height:600px">
+
+<sc-if value="{{ isService }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">What do you need help with?</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px">Pick a category to get matched with verified pros.</p>
+</div>
+<div style="display:flex;flex-direction:column;border:1px solid var(--color-neutral-800);border-radius:var(--radius-md,8px);overflow:hidden">
+<sc-for list="{{ categories }}" as="c" hint-placeholder-count="6">
+<div class="na-catrow" style="{{ c.rowStyle }}" onClick="{{ c.onSelect }}">
+<span style="font-size:14px">{{ c.name }}</span>
+<div style="display:flex;gap:8px;align-items:center">
+<sc-if value="{{ c.popular }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral">Popular</span></sc-if>
+<sc-if value="{{ c.selected }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">Selected</span></sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDescribe }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Tell us what's going on</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px">{{ selectedCategoryName }}</p>
+</div>
+<div class="field"><label>Service address</label><input class="input" value="{{ address }}" onChange="{{ onAddressChange }}"></div>
+<div class="field"><label>Where's the issue?</label><input class="input" value="{{ location }}" onChange="{{ onLocationChange }}"></div>
+<div style="display:flex;gap:32px;flex-wrap:wrap">
+<div class="field" style="gap:6px"><label>Is water/power currently active?</label>
+<div class="seg"><sc-for list="{{ runningOptions }}" as="o" hint-placeholder-count="2"><label class="seg-opt"><input type="radio" name="running" checked="{{ o.checked }}" onChange="{{ o.onSelect }}"/>{{ o.label }}</label></sc-for></div>
+</div>
+<div class="field" style="gap:6px"><label>Is this an emergency?</label>
+<div class="seg"><sc-for list="{{ emergencyOptions }}" as="o" hint-placeholder-count="2"><label class="seg-opt"><input type="radio" name="emergency" checked="{{ o.checked }}" onChange="{{ o.onSelect }}"/>{{ o.label }}</label></sc-for></div>
+</div>
+</div>
+<div class="field"><label>Additional notes (optional)</label><textarea class="input" rows="3" value="{{ notes }}" onChange="{{ onNotesChange }}"></textarea></div>
+<button type="button" class="btn btn-secondary" style="width:fit-content;gap:6px">Add photo/video</button>
+</sc-if>
+
+<sc-if value="{{ isType }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Choose how you'd like to book</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px">{{ selectedCategoryName }} · {{ location }}</p>
+</div>
+<div class="seg" style="width:fit-content"><sc-for list="{{ bookingTypes }}" as="bt" hint-placeholder-count="3"><label class="seg-opt"><input type="radio" name="bookingType" checked="{{ bt.checked }}" onChange="{{ bt.onSelect }}"/>{{ bt.label }}</label></sc-for></div>
+
+<sc-if value="{{ isFixNow }}" hint-placeholder-val="{{ true }}">
+<div class="card" style="padding:20px;gap:10px;max-width:420px">
+<span class="tag tag-accent" style="width:fit-content">Emergency response</span>
+<p style="margin:0;font-size:13px;color:var(--color-neutral-300)">Verified technician available now. Price shown before you confirm.</p>
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--color-neutral-400)">Est. arrival</span><span style="font-weight:500">18–25 min</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--color-neutral-400)">Call-out fee</span><span style="font-weight:500">R150</span></div>
+</div>
+<button type="button" class="btn btn-primary" style="width:fit-content" onClick="{{ next }}">Find providers</button>
+</sc-if>
+
+<sc-if value="{{ isSchedule }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:20px;max-width:420px">
+<div class="field"><label>Date</label><input class="input" type="date" value="{{ schedDate }}" onChange="{{ onSchedDateChange }}"></div>
+<div class="field"><label>Time</label><input class="input" type="time" value="{{ schedTime }}" onChange="{{ onSchedTimeChange }}"></div>
+</div>
+<button type="button" class="btn btn-primary" style="width:fit-content" disabled="{{ scheduleDisabled }}" onClick="{{ next }}">Schedule visit</button>
+</sc-if>
+
+<sc-if value="{{ isQuotes }}" hint-placeholder-val="{{ false }}">
+<div class="card" style="padding:20px;max-width:420px">
+<p style="margin:0;font-size:13px;color:var(--color-neutral-300)">Best for larger jobs needing inspection — you'll pick up to 3 verified pros and compare standardised quotes.</p>
+</div>
+<button type="button" class="btn btn-primary" style="width:fit-content" onClick="{{ next }}">Request quotes</button>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isMatches }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">{{ matchesTitle }}</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px">{{ matchesSubtitle }}</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+<sc-for list="{{ providers }}" as="p" hint-placeholder-count="3">
+<div class="na-provcard" style="{{ p.cardStyle }}" onClick="{{ p.onSelect }}">
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:500;font-size:14px">{{ p.name }}</span><span style="{{ p.badgeClass }}">{{ p.badge }}</span></div>
+<div style="font-size:12px;color:var(--color-neutral-400)">{{ p.rating }} ({{ p.jobs }} jobs) · {{ p.eta }} · R{{ p.estimate }} est</div>
+<span class="tag tag-outline" style="width:fit-content">{{ p.guaranteeDays }}-day guarantee</span>
+<sc-if value="{{ p.selected }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent" style="width:fit-content">Selected</span></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCompare }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Compare quotes</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px">Standardised line items across your chosen pros.</p>
+</div>
+<table class="table">
+<thead><tr><th>Pro</th><th>Labour</th><th>Materials</th><th>Days</th><th>Guarantee</th><th></th></tr></thead>
+<tbody>
+<sc-for list="{{ compareRows }}" as="r" hint-placeholder-count="3">
+<tr><td>{{ r.name }}</td><td>R{{ r.labour }}</td><td>R{{ r.materials }}</td><td>{{ r.hours }}</td><td>{{ r.guaranteeDays }}d</td><td><button type="button" class="btn btn-secondary" onClick="{{ r.onChoose }}">Choose this quote</button></td></tr>
+</sc-for>
+</tbody>
+</table>
+</sc-if>
+
+<sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Confirm booking</h2>
+</div>
+<div class="card" style="padding:20px;gap:10px;max-width:460px">
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--color-neutral-400)">Provider</span><span>{{ finalProviderName }} · {{ finalProviderBadge }}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--color-neutral-400)">Service</span><span>{{ selectedCategoryName }} · {{ location }}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--color-neutral-400)">Address</span><span>{{ address }}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--color-neutral-400)">Booking ref</span><span>{{ bookingRef }}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600"><span>Est. total</span><span>R{{ estRangeLow }}–R{{ estRangeHigh }}</span></div>
+</div>
+<span class="tag tag-outline" style="width:fit-content">Arrival PIN {{ arrivalPin }} shared once en route</span>
+<button type="button" class="btn btn-primary" style="width:fit-content" onClick="{{ next }}">Confirm &amp; authorise payment</button>
+</sc-if>
+
+<sc-if value="{{ isTrack }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Track {{ finalProviderName }}</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px">{{ finalProviderBadge }} · Arrival PIN {{ arrivalPin }}</p>
+</div>
+<div style="display:flex;flex-direction:column;max-width:420px">
+<sc-for list="{{ trackSteps }}" as="t" hint-placeholder-count="5">
+<div style="display:flex;align-items:flex-start;gap:10px">
+<div style="{{ t.dotStyle }}"></div>
+<div style="flex:1;padding-bottom:16px"><div style="{{ t.labelStyle }}">{{ t.label }}</div></div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ trackNotDone }}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-secondary" style="width:fit-content" onClick="{{ advanceTrack }}">Simulate next update</button></sc-if>
+<sc-if value="{{ trackDone }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary" style="width:fit-content" onClick="{{ next }}">Continue to payment</button></sc-if>
+</sc-if>
+
+<sc-if value="{{ isPay }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">Complete &amp; pay</h2>
+</div>
+<table class="table" style="max-width:420px">
+<thead><tr><th>Item</th><th style="text-align:right">Amount</th></tr></thead>
+<tbody>
+<tr><td>Call-out fee</td><td style="text-align:right">R150.00</td></tr>
+<tr><td>Labour ({{ finalHours }}h)</td><td style="text-align:right">R{{ finalLabour }}</td></tr>
+<tr><td>Materials</td><td style="text-align:right">R{{ finalMaterials }}</td></tr>
+<tr><td>VAT (15%)</td><td style="text-align:right">R{{ finalVat }}</td></tr>
+<tr><td style="font-weight:600;color:var(--color-text)">Total</td><td style="text-align:right;font-weight:600;color:var(--color-text)">R{{ finalTotal }}</td></tr>
+</tbody>
+</table>
+<span class="tag tag-outline" style="width:fit-content">{{ finalProviderGuaranteeDays }}-day workmanship guarantee</span>
+<button type="button" class="btn btn-primary" style="width:fit-content" onClick="{{ next }}">Approve &amp; pay R{{ finalTotal }}</button>
+</sc-if>
+
+<sc-if value="{{ isReviewForm }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+<h2 style="margin:0;font:500 22px var(--font-heading)">How did {{ finalProviderName }} do?</h2>
+</div>
+<div style="display:flex;gap:6px">
+<sc-for list="{{ stars }}" as="st" hint-placeholder-count="5">
+<svg class="na-star" width="26" height="26" viewBox="0 0 256 256" fill="{{ st.fill }}" onClick="{{ st.onSelect }}"><path d="M239.2,97.29a16,16,0,0,0-13.81-11L166,81.17,142.72,25.81a15.95,15.95,0,0,0-29.44,0L90.07,81.17,30.61,86.32a16,16,0,0,0-9.11,28.06L67.11,153.6,53.09,212.34a16,16,0,0,0,23.84,17.34l51-31,51.11,31a16,16,0,0,0,23.84-17.34l-14-58.74,45.61-39.22A16,16,0,0,0,239.2,97.29Z"/></svg>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<sc-for list="{{ reviewTags }}" as="rt" hint-placeholder-count="5">
+<span style="{{ rt.tagStyle }}" onClick="{{ rt.onToggle }}">{{ rt.label }}</span>
+</sc-for>
+</div>
+<div class="field"><label>Comment (optional)</label><textarea class="input" rows="3" value="{{ comment }}" onChange="{{ onCommentChange }}"></textarea></div>
+<button type="button" class="btn btn-primary" style="width:fit-content" disabled="{{ submitDisabled }}" onClick="{{ submitReview }}">Submit review</button>
+</sc-if>
+
+<sc-if value="{{ isReviewDone }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:14px;align-items:flex-start">
+<span class="tag tag-accent">Review submitted</span>
+<h2 style="margin:0;font:500 22px var(--font-heading)">Thanks for booking with Need-A</h2>
+<p style="margin:0;color:var(--color-neutral-400);font-size:13px;max-width:50ch">{{ finalProviderName }} completed your {{ selectedCategoryName }} job for R{{ finalTotal }}. A receipt has been sent to your email.</p>
+<button type="button" class="btn btn-secondary" onClick="{{ resetFlow }}">Book another service</button>
+</div>
+</sc-if>
+
+<div style="display:flex;justify-content:space-between;margin-top:auto;padding-top:20px;border-top:1px solid var(--color-neutral-800)">
+<sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-ghost" onClick="{{ back }}">Back</button></sc-if>
+<sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}"><span></span></sc-if>
+<sc-if value="{{ showContinue }}" hint-placeholder-val="{{ false }}"><button type="button" class="btn btn-primary" disabled="{{ continueDisabled }}" onClick="{{ next }}" style="margin-left:auto">Continue</button></sc-if>
+</div>
+
+</section>
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CATEGORIES = [
+  {id:'plumbing', name:'Plumbing', popular:true},
+  {id:'electrical', name:'Electrical'},
+  {id:'handyman', name:'Handyman'},
+  {id:'cleaning', name:'Home cleaning'},
+  {id:'appliance', name:'Appliance repair'},
+  {id:'gardening', name:'Gardening'},
+];
+const PROVIDERS = [
+  {id:'thabo', name:'Thabo M.', badge:'Verified', rating:4.9, jobs:128, eta:'22 min', estimate:450, guaranteeDays:30, hours:1.5, rate:350, materials:220},
+  {id:'sarah', name:'Sarah K.', badge:'Verified', rating:4.8, jobs:86, eta:'31 min', estimate:480, guaranteeDays:30, hours:2, rate:280, materials:240},
+  {id:'given', name:'Given P.', badge:'Elite', rating:5.0, jobs:240, eta:'40 min', estimate:510, guaranteeDays:90, hours:1, rate:600, materials:210},
+];
+const REVIEW_TAGS = ['Punctuality','Communication','Workmanship','Cleanliness','Value'];
+const TRACK_LABELS = ['Accepted','En route','Arrived','Working','Done'];
+
+const STEP_LABELS = {
+  service:'Service', describe:'Details', type:'Booking type', matches:'Matches',
+  compare:'Compare quotes', confirm:'Confirm', track:'Track', pay:'Pay', review:'Review'
+};
+
+function initialState() {
+  return {
+    stepIndex: 0,
+    category: null,
+    address: 'Menlyn, Unit 4',
+    location: 'Kitchen — under sink',
+    running: true,
+    emergency: true,
+    notes: '',
+    bookingType: 'fixnow',
+    schedDate: '',
+    schedTime: '',
+    selectedProviders: [],
+    finalProviderId: null,
+    trackIndex: 1,
+    rating: 0,
+    reviewTags: [],
+    comment: '',
+    reviewSubmitted: false,
+  };
+}
+
+class Component extends DCLogic {
+  state = initialState();
+
+  getSeq() {
+    const seq = ['service','describe','type','matches'];
+    if (this.state.bookingType === 'quotes') seq.push('compare');
+    seq.push('confirm','track','pay','review');
+    return seq;
+  }
+
+  getProvider(id) { return PROVIDERS.find(p => p.id === id); }
+
+  next() {
+    const seq = this.getSeq();
+    const key = seq[this.state.stepIndex];
+    if (key === 'matches' && this.state.bookingType !== 'quotes') {
+      this.setState({ finalProviderId: this.state.selectedProviders[0] || null });
+    }
+    this.setState(s => ({ stepIndex: Math.min(seq.length - 1, s.stepIndex + 1) }));
+  }
+  back() { this.setState(s => ({ stepIndex: Math.max(0, s.stepIndex - 1) })); }
+  resetFlow() { this.setState(initialState()); }
+
+  selectCategory(id) { this.setState({ category: id }); }
+  onAddressChange(e) { this.setState({ address: e.target.value }); }
+  onLocationChange(e) { this.setState({ location: e.target.value }); }
+  onNotesChange(e) { this.setState({ notes: e.target.value }); }
+  setRunning(v) { this.setState({ running: v }); }
+  setEmergency(v) { this.setState({ emergency: v }); }
+  setBookingType(v) { this.setState({ bookingType: v }); }
+  onSchedDateChange(e) { this.setState({ schedDate: e.target.value }); }
+  onSchedTimeChange(e) { this.setState({ schedTime: e.target.value }); }
+
+  toggleProvider(id) {
+    this.setState(s => {
+      if (s.bookingType === 'quotes') {
+        const has = s.selectedProviders.includes(id);
+        let list;
+        if (has) list = s.selectedProviders.filter(x => x !== id);
+        else if (s.selectedProviders.length < 3) list = [...s.selectedProviders, id];
+        else list = s.selectedProviders;
+        return { selectedProviders: list };
+      }
+      return { selectedProviders: [id] };
+    });
+  }
+
+  chooseQuote(id) { this.setState({ finalProviderId: id }); this.next(); }
+  advanceTrack() { this.setState(s => ({ trackIndex: Math.min(4, s.trackIndex + 1) })); }
+  setRating(n) { this.setState({ rating: n }); }
+  toggleReviewTag(label) {
+    this.setState(s => ({
+      reviewTags: s.reviewTags.includes(label) ? s.reviewTags.filter(t => t !== label) : [...s.reviewTags, label]
+    }));
+  }
+  onCommentChange(e) { this.setState({ comment: e.target.value }); }
+  submitReview() { this.setState({ reviewSubmitted: true }); }
+
+  renderVals() {
+    const s = this.state;
+    const seq = this.getSeq();
+    const idx = Math.min(s.stepIndex, seq.length - 1);
+    const key = seq[idx];
+
+    const steps = seq.map((k, i) => {
+      const active = i === idx, completed = i < idx;
+      const bg = active ? 'var(--color-neutral-800)' : 'transparent';
+      const numBg = completed || active ? 'var(--color-accent-500)' : 'var(--color-neutral-800)';
+      const numColor = completed || active ? 'var(--color-bg)' : 'var(--color-neutral-500)';
+      const labelColor = active ? 'var(--color-text)' : (completed ? 'var(--color-neutral-300)' : 'var(--color-neutral-500)');
+      return {
+        key, num: i + 1, label: STEP_LABELS[k],
+        rowStyle: `display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-md,8px);background:${bg}`,
+        numStyle: `width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:600 10px var(--font-body);background:${numBg};color:${numColor}`,
+        labelStyle: `font-size:13px;color:${labelColor}`,
+      };
+    });
+
+    const categories = CATEGORIES.map(c => {
+      const selected = s.category === c.id;
+      return {
+        ...c, selected,
+        rowStyle: `padding:14px 16px;cursor:pointer;background:${selected ? 'var(--color-neutral-800)' : 'transparent'}`,
+        onSelect: () => this.selectCategory(c.id),
+      };
+    });
+    const selectedCategoryName = (CATEGORIES.find(c => c.id === s.category) || {}).name || 'Select a service';
+
+    const runningOptions = ['Yes','No'].map(l => ({ label: l, checked: s.running === (l === 'Yes'), onSelect: () => this.setRunning(l === 'Yes') }));
+    const emergencyOptions = ['Yes','No'].map(l => ({ label: l, checked: s.emergency === (l === 'Yes'), onSelect: () => this.setEmergency(l === 'Yes') }));
+
+    const bookingTypes = [
+      { key:'fixnow', label:'Fix Now' }, { key:'schedule', label:'Schedule It' }, { key:'quotes', label:'Get Quotes' }
+    ].map(bt => ({ ...bt, checked: s.bookingType === bt.key, onSelect: () => this.setBookingType(bt.key) }));
+
+    const providers = PROVIDERS.map(p => {
+      const selected = s.selectedProviders.includes(p.id);
+      return {
+        ...p, selected,
+        cardStyle: `border-color:${selected ? 'var(--color-accent-500)' : 'var(--color-neutral-700)'}`,
+        badgeClass: `tag ${p.badge === 'Elite' ? 'tag-accent' : 'tag-accent'}`,
+        onSelect: () => this.toggleProvider(p.id),
+      };
+    });
+
+    const matchesTitle = s.bookingType === 'quotes' ? 'Choose up to 3 pros to quote' : 'Verified matches near you';
+    const matchesSubtitle = s.bookingType === 'quotes'
+      ? `${s.selectedProviders.length}/3 selected`
+      : 'Select a pro to continue.';
+
+    const compareRows = s.selectedProviders.map(id => {
+      const p = this.getProvider(id);
+      return { name: p.name, labour: Math.round(p.hours * p.rate), materials: p.materials, hours: p.hours, guaranteeDays: p.guaranteeDays, onChoose: () => this.chooseQuote(id) };
+    });
+
+    const finalProvider = this.getProvider(s.finalProviderId) || PROVIDERS[0];
+    const finalLabour = Math.round(finalProvider.hours * finalProvider.rate);
+    const finalMaterials = finalProvider.materials;
+    const subtotal = 150 + finalLabour + finalMaterials;
+    const finalVat = Math.round(subtotal * 0.15 * 100) / 100;
+    const finalTotal = Math.round((subtotal + finalVat) * 100) / 100;
+
+    const trackSteps = TRACK_LABELS.map((label, i) => {
+      const on = i <= s.trackIndex;
+      return {
+        label,
+        dotStyle: `width:10px;height:10px;border-radius:50%;background:${on ? 'var(--color-accent-400)' : 'var(--color-neutral-600)'};margin-top:3px`,
+        labelStyle: `font-size:13px;color:${on ? 'var(--color-text)' : 'var(--color-neutral-500)'}`,
+      };
+    });
+
+    const stars = [1,2,3,4,5].map(n => ({ n, fill: n <= s.rating ? 'var(--color-accent-400)' : 'var(--color-neutral-700)', onSelect: () => this.setRating(n) }));
+    const reviewTags = REVIEW_TAGS.map(label => {
+      const active = s.reviewTags.includes(label);
+      return { label, tagStyle: `cursor:pointer;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid ${active ? 'var(--color-accent-500)' : 'var(--color-neutral-700)'};background:${active ? 'var(--color-accent-800, var(--color-neutral-800))' : 'transparent'};color:${active ? 'var(--color-accent-200)' : 'var(--color-neutral-300)'}`, onToggle: () => this.toggleReviewTag(label) };
+    });
+
+    const showBack = idx > 0 && !(key === 'review' && s.reviewSubmitted);
+    const showContinue = ['service','describe','matches'].includes(key) && !(key === 'review' && s.reviewSubmitted);
+    let continueDisabled = false;
+    if (key === 'service') continueDisabled = !s.category;
+    if (key === 'describe') continueDisabled = !s.address;
+    if (key === 'matches') continueDisabled = s.selectedProviders.length === 0;
+
+    return {
+      steps, categories, selectedCategoryName,
+      address: s.address, location: s.location, notes: s.notes,
+      onAddressChange: e => this.onAddressChange(e), onLocationChange: e => this.onLocationChange(e), onNotesChange: e => this.onNotesChange(e),
+      runningOptions, emergencyOptions,
+      isService: key === 'service', isDescribe: key === 'describe', isType: key === 'type',
+      isFixNow: s.bookingType === 'fixnow', isSchedule: s.bookingType === 'schedule', isQuotes: s.bookingType === 'quotes',
+      bookingTypes,
+      schedDate: s.schedDate, schedTime: s.schedTime, onSchedDateChange: e => this.onSchedDateChange(e), onSchedTimeChange: e => this.onSchedTimeChange(e),
+      scheduleDisabled: !(s.schedDate && s.schedTime),
+      isMatches: key === 'matches', matchesTitle, matchesSubtitle, providers,
+      isCompare: key === 'compare', compareRows,
+      isConfirm: key === 'confirm',
+      finalProviderName: finalProvider.name, finalProviderBadge: finalProvider.badge,
+      bookingRef: '#NA-30281', arrivalPin: '4821',
+      estRangeLow: finalProvider.estimate, estRangeHigh: finalProvider.estimate + 200,
+      isTrack: key === 'track', trackSteps, trackNotDone: s.trackIndex < 4, trackDone: s.trackIndex >= 4, advanceTrack: () => this.advanceTrack(),
+      isPay: key === 'pay', finalHours: finalProvider.hours, finalLabour, finalMaterials, finalVat: finalVat.toFixed(2), finalTotal: finalTotal.toFixed(2), finalProviderGuaranteeDays: finalProvider.guaranteeDays,
+      isReviewForm: key === 'review' && !s.reviewSubmitted, isReviewDone: key === 'review' && s.reviewSubmitted,
+      stars, reviewTags, comment: s.comment, onCommentChange: e => this.onCommentChange(e),
+      submitDisabled: s.rating === 0, submitReview: () => this.submitReview(), resetFlow: () => this.resetFlow(),
+      showBack, showContinue, continueDisabled,
+      next: () => this.next(), back: () => this.back(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
