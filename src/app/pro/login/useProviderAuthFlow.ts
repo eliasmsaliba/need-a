@@ -34,6 +34,9 @@ function initialState(): ProviderAuthState {
     endTime: "17:00",
     hourlyRate: 350,
     calloutFee: 150,
+    idDocumentUrl: null,
+    certificationUrl: null,
+    portfolioUrls: [],
     bankName: "",
     accountHolder: "",
     accountNumber: "",
@@ -171,7 +174,19 @@ export function useProviderAuthFlow() {
       return;
     }
 
-    // "verification" step: uploads are local-preview only this pass, nothing to persist.
+    if (currentStep === "verification") {
+      if (!state.userId) return;
+      patch({ submitting: true });
+      await saveProviderStep(state.userId, {
+        step: "verification",
+        idDocumentUrl: state.idDocumentUrl,
+        certificationUrl: state.certificationUrl,
+        portfolioUrls: state.portfolioUrls,
+      });
+      patch({ submitting: false, stepIndex: stepIdx + 1 });
+      return;
+    }
+
     patch({ stepIndex: stepIdx + 1 });
   }
 

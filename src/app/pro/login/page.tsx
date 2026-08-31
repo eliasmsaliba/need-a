@@ -48,7 +48,7 @@ export default function ProviderAuthPage() {
             {currentStep === "verify" && <VerifyStep flow={flow} />}
             {currentStep === "business" && <BusinessStep flow={flow} />}
             {currentStep === "availability" && <AvailabilityStep flow={flow} />}
-            {currentStep === "verification" && <VerificationStep />}
+            {currentStep === "verification" && <VerificationStep flow={flow} />}
             {currentStep === "payout" && <PayoutStep flow={flow} />}
             {currentStep === "done" && <DoneStep flow={flow} />}
 

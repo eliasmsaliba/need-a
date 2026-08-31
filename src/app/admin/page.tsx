@@ -37,6 +37,7 @@ export default async function AdminPage() {
       email: users.email,
       bizName: providerProfiles.bizName,
       status: providerProfiles.status,
+      idDocumentUrl: providerProfiles.idDocumentUrl,
     })
     .from(users)
     .innerJoin(providerProfiles, eq(providerProfiles.userId, users.id))
@@ -49,6 +50,7 @@ export default async function AdminPage() {
     rating: 0,
     jobs: 0,
     status: PROVIDER_STATUS_LABEL[p.status],
+    idDocumentUrl: p.idDocumentUrl,
   }));
 
   const customerRows = await db

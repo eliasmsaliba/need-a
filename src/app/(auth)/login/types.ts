@@ -20,6 +20,7 @@ export interface CustomerAuthState {
 
   profName: string;
   profPhone: string;
+  avatarUrl: string | null;
   addresses: AddressEntry[];
   newAddrLabel: string;
   newAddrText: string;

@@ -55,6 +55,7 @@ export const customerProfiles = pgTable("customer_profiles", {
   notifEmail: boolean("notif_email").notNull().default(true),
   notifPush: boolean("notif_push").notNull().default(false),
   status: customerStatus("status").notNull().default("active"),
+  avatarUrl: text("avatar_url"),
 });
 
 export const addresses = pgTable("addresses", {
@@ -89,6 +90,9 @@ export const providerProfiles = pgTable("provider_profiles", {
   branchCode: text("branch_code").notNull().default(""),
   status: providerStatus("status").notNull().default("pending_verification"),
   guaranteeDays: integer("guarantee_days").notNull().default(30),
+  idDocumentUrl: text("id_document_url"),
+  certificationUrl: text("certification_url"),
+  portfolioUrls: text("portfolio_urls").array().notNull().default([]),
 });
 
 export const bookings = pgTable("bookings", {

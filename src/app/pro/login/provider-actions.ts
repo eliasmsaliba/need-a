@@ -22,6 +22,12 @@ export type ProviderStepInput =
       calloutFee: number;
     }
   | {
+      step: "verification";
+      idDocumentUrl: string | null;
+      certificationUrl: string | null;
+      portfolioUrls: string[];
+    }
+  | {
       step: "payout";
       bankName: string;
       accountHolder: string;
@@ -33,30 +39,43 @@ export async function saveProviderStep(
   userId: string,
   input: ProviderStepInput,
 ): Promise<{ success: true }> {
-  const insertValues =
-    input.step === "business"
-      ? {
-          bizName: input.bizName,
-          bizPhone: input.bizPhone,
-          bizTradingName: input.bizTradingName,
-          selectedCategories: input.selectedCategories,
-          serviceRadius: input.serviceRadius,
-        }
-      : input.step === "availability"
-        ? {
-            selectedDays: input.selectedDays,
-            startTime: input.startTime,
-            endTime: input.endTime,
-            hourlyRate: input.hourlyRate,
-            calloutFee: input.calloutFee,
-          }
-        : {
-            bankName: input.bankName,
-            accountHolder: input.accountHolder,
-            accountNumber: encrypt(input.accountNumber),
-            branchCode: input.branchCode,
-            status: "pending_verification" as const,
-          };
+  let insertValues;
+  switch (input.step) {
+    case "business":
+      insertValues = {
+        bizName: input.bizName,
+        bizPhone: input.bizPhone,
+        bizTradingName: input.bizTradingName,
+        selectedCategories: input.selectedCategories,
+        serviceRadius: input.serviceRadius,
+      };
+      break;
+    case "availability":
+      insertValues = {
+        selectedDays: input.selectedDays,
+        startTime: input.startTime,
+        endTime: input.endTime,
+        hourlyRate: input.hourlyRate,
+        calloutFee: input.calloutFee,
+      };
+      break;
+    case "verification":
+      insertValues = {
+        idDocumentUrl: input.idDocumentUrl,
+        certificationUrl: input.certificationUrl,
+        portfolioUrls: input.portfolioUrls,
+      };
+      break;
+    case "payout":
+      insertValues = {
+        bankName: input.bankName,
+        accountHolder: input.accountHolder,
+        accountNumber: encrypt(input.accountNumber),
+        branchCode: input.branchCode,
+        status: "pending_verification" as const,
+      };
+      break;
+  }
 
   await db
     .insert(providerProfiles)

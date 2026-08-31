@@ -19,7 +19,14 @@ export function ProfileStep({ flow }: { flow: CustomerAuthFlow }) {
       <h2 className="text-xl font-medium">Complete your profile</h2>
 
       <div className="flex gap-4 items-center">
-        <ImageSlot placeholder="Photo" shape="circle" className="w-[72px] h-[72px]" />
+        <ImageSlot
+          placeholder="Photo"
+          shape="circle"
+          className="w-[72px] h-[72px]"
+          userId={state.userId!}
+          kind="avatar"
+          onUploaded={(url) => patch({ avatarUrl: url })}
+        />
         <span className="text-xs text-neutral-400">Add a profile photo (optional)</span>
       </div>
 

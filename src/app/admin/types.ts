@@ -30,6 +30,7 @@ export interface RealProvider {
   rating: number;
   jobs: number;
   status: "Pending verification" | "Active" | "Suspended";
+  idDocumentUrl: string | null;
 }
 
 export interface RealCustomer {

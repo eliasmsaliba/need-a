@@ -7,6 +7,7 @@ import { addresses, customerProfiles } from "@/db/schema";
 export interface CustomerProfileInput {
   fullName: string;
   phone: string;
+  avatarUrl: string | null;
   addresses: { label: string; text: string }[];
   payment: "card" | "eft";
   cardNumber: string;
@@ -28,6 +29,7 @@ export async function completeCustomerProfile(
       userId,
       fullName: input.fullName,
       phone: input.phone,
+      avatarUrl: input.avatarUrl,
       payment: input.payment,
       cardLast4,
       notifSms: input.notif.sms,
@@ -39,6 +41,7 @@ export async function completeCustomerProfile(
       set: {
         fullName: input.fullName,
         phone: input.phone,
+        avatarUrl: input.avatarUrl,
         payment: input.payment,
         cardLast4,
         notifSms: input.notif.sms,

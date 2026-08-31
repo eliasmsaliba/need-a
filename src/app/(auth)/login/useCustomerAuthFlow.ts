@@ -27,6 +27,7 @@ function initialState(): CustomerAuthState {
     otpError: false,
     profName: "",
     profPhone: "",
+    avatarUrl: null,
     addresses: [],
     newAddrLabel: "",
     newAddrText: "",
@@ -129,6 +130,7 @@ export function useCustomerAuthFlow() {
     await completeCustomerProfile(state.userId, {
       fullName: state.profName,
       phone: state.profPhone,
+      avatarUrl: state.avatarUrl,
       addresses: state.addresses,
       payment: state.payment,
       cardNumber: state.cardNumber,

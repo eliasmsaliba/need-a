@@ -32,6 +32,10 @@ export interface ProviderAuthState {
   hourlyRate: number;
   calloutFee: number;
 
+  idDocumentUrl: string | null;
+  certificationUrl: string | null;
+  portfolioUrls: string[];
+
   bankName: string;
   accountHolder: string;
   accountNumber: string;

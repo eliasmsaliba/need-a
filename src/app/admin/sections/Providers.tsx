@@ -43,6 +43,11 @@ export function Providers({ flow }: { flow: AdminConsoleFlow }) {
                 </TD>
                 <TD>
                   <div className="flex gap-2">
+                    {showVerify && p.idDocumentUrl && (
+                      <a href={p.idDocumentUrl} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost">View ID</Button>
+                      </a>
+                    )}
                     {showVerify && (
                       <Button variant="secondary" onClick={() => verifyProvider(p.id)}>
                         Verify
