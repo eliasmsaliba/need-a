@@ -7,7 +7,7 @@ export function AccountStep({ flow }: { flow: ProviderAuthFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Create your pro account</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Create your pro account</h2>
       <Field label="Email">
         <Input
           type="email"

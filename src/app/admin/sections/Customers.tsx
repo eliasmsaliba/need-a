@@ -15,7 +15,7 @@ export function Customers({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Customers</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Customers</h2>
       <Table>
         <thead>
           <TR>

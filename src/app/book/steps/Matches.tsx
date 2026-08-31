@@ -13,7 +13,7 @@ export function Matches({ flow }: { flow: BookingFlow }) {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="text-[22px] font-medium">{title}</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">{title}</h2>
         <p className="text-neutral-400 text-[13px]">{subtitle}</p>
       </div>
 

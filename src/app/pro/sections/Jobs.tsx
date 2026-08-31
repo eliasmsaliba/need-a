@@ -1,5 +1,6 @@
 "use client";
 
+import { ClipboardText, CurrencyCircleDollar } from "@phosphor-icons/react/dist/ssr";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
@@ -26,17 +27,23 @@ export function Jobs({
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
-        <Card className="p-4 gap-1.5">
-          <span className="text-[10px] tracking-wide uppercase text-accent">Completed jobs</span>
-          <span className="text-2xl font-medium">{completed.length}</span>
+        <Card elevation="glow" className="p-4 gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] tracking-wide uppercase text-accent-300">Completed jobs</span>
+            <ClipboardText weight="duotone" className="text-lg text-accent-400" />
+          </div>
+          <span className="text-3xl font-semibold tracking-tight">{completed.length}</span>
         </Card>
-        <Card className="p-4 gap-1.5">
-          <span className="text-[10px] tracking-wide uppercase text-accent">Total billed</span>
-          <span className="text-2xl font-medium">R{totalBilled}</span>
+        <Card elevation="glow" className="p-4 gap-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] tracking-wide uppercase text-accent-300">Total billed</span>
+            <CurrencyCircleDollar weight="duotone" className="text-lg text-accent-400" />
+          </div>
+          <span className="text-3xl font-semibold tracking-tight">R{totalBilled}</span>
         </Card>
       </div>
 
-      <h2 className="text-lg font-medium">Active jobs</h2>
+      <h2 className="text-xl font-semibold tracking-tight">Active jobs</h2>
       {active.length === 0 && <p className="text-sm text-neutral-400">No active jobs right now.</p>}
       <div className="flex flex-col gap-3">
         {active.map((j) => {
@@ -75,7 +82,7 @@ export function Jobs({
 
       {completed.length > 0 && (
         <>
-          <h2 className="text-lg font-medium">Completed jobs</h2>
+          <h2 className="text-xl font-semibold tracking-tight">Completed jobs</h2>
           <div className="flex flex-col gap-3">
             {completed.map((j) => (
               <Card key={j.id} className="p-4 gap-1.5">

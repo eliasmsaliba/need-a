@@ -1,8 +1,29 @@
+import { Briefcase, CurrencyCircleDollar, Star, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Table, TD, TH, TR } from "@/components/ui/Table";
 import { statusVariant } from "../data";
 import type { AdminConsoleFlow } from "../useAdminConsole";
+
+interface StatCard {
+  label: string;
+  value: string | number;
+  icon: typeof Briefcase;
+}
+
+function buildStats(flow: {
+  activeJobsCount: number;
+  gmvToday: number;
+  avgRating: string;
+  openDisputesCount: number;
+}): StatCard[] {
+  return [
+    { label: "Active jobs", value: flow.activeJobsCount, icon: Briefcase },
+    { label: "GMV today", value: `R${flow.gmvToday}`, icon: CurrencyCircleDollar },
+    { label: "Avg pro rating", value: flow.avgRating, icon: Star },
+    { label: "Open disputes", value: flow.openDisputesCount, icon: WarningCircle },
+  ];
+}
 
 export function Dashboard({ flow }: { flow: AdminConsoleFlow }) {
   const { activeJobsCount, gmvToday, avgRating, openDisputesCount, chartBars, recentBookings, statusLabel } =
@@ -10,24 +31,17 @@ export function Dashboard({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Overview</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Overview</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-[18px] gap-1.5">
-          <span className="text-[10px] tracking-wide uppercase text-accent">Active jobs</span>
-          <span className="text-2xl font-medium">{activeJobsCount}</span>
-        </Card>
-        <Card className="p-[18px] gap-1.5">
-          <span className="text-[10px] tracking-wide uppercase text-accent">GMV today</span>
-          <span className="text-2xl font-medium">R{gmvToday}</span>
-        </Card>
-        <Card className="p-[18px] gap-1.5">
-          <span className="text-[10px] tracking-wide uppercase text-accent">Avg pro rating</span>
-          <span className="text-2xl font-medium">{avgRating}</span>
-        </Card>
-        <Card className="p-[18px] gap-1.5">
-          <span className="text-[10px] tracking-wide uppercase text-accent">Open disputes</span>
-          <span className="text-2xl font-medium">{openDisputesCount}</span>
-        </Card>
+        {buildStats({ activeJobsCount, gmvToday, avgRating, openDisputesCount }).map((s) => (
+          <Card key={s.label} elevation="glow" className="p-[18px] gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] tracking-wide uppercase text-accent-300">{s.label}</span>
+              <s.icon weight="duotone" className="text-lg text-accent-400" />
+            </div>
+            <span className="text-3xl font-semibold tracking-tight">{s.value}</span>
+          </Card>
+        ))}
       </div>
 
       <Card className="p-6 gap-4">
@@ -36,7 +50,7 @@ export function Dashboard({ flow }: { flow: AdminConsoleFlow }) {
           {chartBars.map((bar) => (
             <div key={bar.name} className="flex flex-col items-center gap-2 flex-1">
               <div
-                className="w-9 rounded-t bg-accent-500"
+                className="w-9 rounded-t bg-[image:var(--gradient-hero)]"
                 style={{ height: `${bar.heightPx}px` }}
               />
               <span className="text-[11px] text-neutral-400 text-center">{bar.name}</span>

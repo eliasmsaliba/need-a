@@ -11,7 +11,7 @@ export function CompareQuotes({ flow }: { flow: BookingFlow }) {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="text-[22px] font-medium">Compare quotes</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Compare quotes</h2>
         <p className="text-neutral-400 text-[13px]">
           Standardised line items across your chosen pros.
         </p>

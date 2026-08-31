@@ -9,7 +9,7 @@ export function AvailabilityStep({ flow }: { flow: ProviderAuthFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Availability &amp; rates</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Availability &amp; rates</h2>
       <Field label="Working days" className="flex flex-col gap-2">
         <div className="flex gap-2 flex-wrap">
           {DAYS.map((day) => (

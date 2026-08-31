@@ -10,7 +10,7 @@ export function Dispatch({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Dispatch queue</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Dispatch queue</h2>
       <Table>
         <thead>
           <TR>

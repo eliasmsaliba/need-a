@@ -21,15 +21,15 @@ export function StepRail({ steps, activeIndex, className }: StepRailProps) {
           <div
             key={step.key}
             className={cn(
-              "flex items-center gap-2.5 py-2.5 px-3 rounded-md",
-              active && "bg-neutral-800",
+              "flex items-center gap-2.5 py-2.5 px-3 rounded-md transition-colors duration-200",
+              active && "bg-accent-900/50",
             )}
           >
             <div
               className={cn(
-                "w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-[10px] font-semibold",
+                "w-[22px] h-[22px] rounded-full shrink-0 flex items-center justify-center text-[10px] font-semibold transition-all duration-200",
                 completed || active
-                  ? "bg-accent-500 text-bg"
+                  ? "bg-[image:var(--gradient-hero)] text-white shadow-[var(--shadow-glow-sm)]"
                   : "bg-neutral-800 text-neutral-500",
               )}
             >

@@ -11,7 +11,7 @@ export function Confirm({ flow }: { flow: BookingFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Confirm booking</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Confirm booking</h2>
       <Card className="p-5 gap-2.5 max-w-[460px]">
         <div className="flex justify-between text-[13px]">
           <span className="text-neutral-400">Provider</span>

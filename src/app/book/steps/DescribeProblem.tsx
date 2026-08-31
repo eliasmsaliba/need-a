@@ -12,7 +12,7 @@ export function DescribeProblem({ flow }: { flow: BookingFlow }) {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="text-[22px] font-medium">Tell us what&apos;s going on</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Tell us what&apos;s going on</h2>
         <p className="text-neutral-400 text-[13px]">{categoryName}</p>
       </div>
 

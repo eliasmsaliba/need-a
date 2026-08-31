@@ -9,7 +9,7 @@ export function Pay({ flow }: { flow: BookingFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Complete &amp; pay</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Complete &amp; pay</h2>
       <Table className="max-w-[420px]">
         <thead>
           <TR>

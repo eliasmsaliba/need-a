@@ -15,7 +15,7 @@ export function Reviews({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Reviews &amp; disputes</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Reviews &amp; disputes</h2>
       <div className="flex flex-col gap-3">
         {state.disputes.map((d) => (
           <Card key={d.id} className="p-[18px] gap-2">

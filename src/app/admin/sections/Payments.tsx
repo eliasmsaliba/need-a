@@ -9,7 +9,7 @@ export function Payments({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Payments &amp; payouts</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Payments &amp; payouts</h2>
       <Table>
         <thead>
           <TR>

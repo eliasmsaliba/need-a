@@ -15,7 +15,7 @@ export function Providers({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Providers</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Providers</h2>
       <Table>
         <thead>
           <TR>

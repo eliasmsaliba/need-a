@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Tag } from "@/components/ui/Tag";
 import { StepRail } from "./StepRail";
 import { useBookingFlow } from "./useBookingFlow";
 import { ServiceSelect } from "./steps/ServiceSelect";
@@ -19,25 +20,19 @@ export function BookingFlow({ initialAddress }: { initialAddress: string }) {
 
   return (
     <div className="flex-1 min-h-0 pb-20">
-      <nav className="flex flex-wrap items-center gap-4 py-3 px-4 md:px-10">
-        <span className="text-lg font-medium mr-auto">Need-A</span>
+      <nav className="sticky top-0 z-20 flex flex-wrap items-center gap-4 py-3 px-4 md:px-10 bg-bg/70 backdrop-blur-xl border-b border-divider">
+        <span className="text-lg font-semibold mr-auto">Need-A</span>
         <div className="flex flex-wrap gap-2.5">
-          <span className="rounded-md border border-accent text-accent text-[11px] py-[3px] px-2.5">
-            Verified pros
-          </span>
-          <span className="rounded-md border border-accent text-accent text-[11px] py-[3px] px-2.5">
-            Money-back guarantee
-          </span>
-          <span className="rounded-md border border-accent text-accent text-[11px] py-[3px] px-2.5">
-            Secure payment
-          </span>
+          <Tag variant="outline">Verified pros</Tag>
+          <Tag variant="outline">Money-back guarantee</Tag>
+          <Tag variant="outline">Secure payment</Tag>
         </div>
       </nav>
 
       <div className="flex flex-col md:flex-row gap-8 max-w-[1280px] mx-auto pt-8 px-4 md:px-6">
         <StepRail seq={flow.seq} stepIdx={flow.stepIdx} />
 
-        <Card elevation="md" className="flex-1 p-5 md:p-9 gap-6 min-h-[600px]">
+        <Card elevation="glow" className="flex-1 p-5 md:p-9 gap-6 min-h-[600px]">
           {flow.currentStep === "service" && <ServiceSelect flow={flow} />}
           {flow.currentStep === "describe" && <DescribeProblem flow={flow} />}
           {flow.currentStep === "type" && <BookingType flow={flow} />}

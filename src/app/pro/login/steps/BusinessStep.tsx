@@ -9,7 +9,7 @@ export function BusinessStep({ flow }: { flow: ProviderAuthFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Business details</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Business details</h2>
       <div className="flex gap-5">
         <Field label="Your name" className="flex-1">
           <Input value={state.bizName} onChange={(e) => patch({ bizName: e.target.value })} />

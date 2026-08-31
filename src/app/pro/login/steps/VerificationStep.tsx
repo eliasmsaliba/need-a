@@ -12,7 +12,7 @@ export function VerificationStep({ flow }: { flow: ProviderAuthFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Verification &amp; portfolio</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Verification &amp; portfolio</h2>
       <p className="text-[13px] text-neutral-400">
         ID verification unlocks the &quot;Verified&quot; badge on your profile.
       </p>

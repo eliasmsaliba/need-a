@@ -50,9 +50,9 @@ export function Business({ profile }: { profile: ProviderProfileData }) {
 
   return (
     <>
-      <Card className="p-5 gap-2">
+      <Card elevation="glow" className="p-5 gap-2">
         <div className="flex justify-between items-center">
-          <span className="text-lg font-medium">{profile.bizName}</span>
+          <span className="text-xl font-semibold tracking-tight">{profile.bizName}</span>
           <Tag variant={STATUS_VARIANT[profile.status]}>{STATUS_LABEL[profile.status]}</Tag>
         </div>
         {profile.bizTradingName && (
@@ -71,7 +71,7 @@ export function Business({ profile }: { profile: ProviderProfileData }) {
       </Card>
 
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-medium">Availability &amp; rates</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Availability &amp; rates</h2>
         <p className="text-[13px] text-neutral-400">Changes apply to new bookings immediately.</p>
       </div>
 

@@ -19,7 +19,9 @@ export default function CustomerAuthPage() {
   return (
     <div className="flex-1 flex flex-col items-center py-14 px-6">
       <div className="text-center mb-6">
-        <div className="text-lg font-medium">Need-A</div>
+        <div className="text-2xl font-semibold tracking-tight">
+          Need<span className="bg-[image:var(--gradient-hero)] bg-clip-text text-transparent">-A</span>
+        </div>
         <p className="mt-1 text-xs text-neutral-400">
           Verified pros · Money-back guarantee · Secure payment
         </p>
@@ -37,7 +39,7 @@ export default function CustomerAuthPage() {
       />
 
       {state.mode === "signup" ? (
-        <Card elevation="md" className="w-full max-w-[520px] p-9 gap-6">
+        <Card elevation="glow" className="w-full max-w-[520px] p-9 gap-6">
           <div className="flex justify-between">
             {STEP_LABELS.map((label, i) => {
               const active = i === state.signupStep;
@@ -46,8 +48,10 @@ export default function CustomerAuthPage() {
                 <div key={label} className="flex flex-col items-center gap-1.5 flex-1">
                   <div
                     className={cn(
-                      "w-[26px] h-[26px] rounded-full flex items-center justify-center text-[11px] font-semibold",
-                      completed || active ? "bg-accent-500 text-bg" : "bg-neutral-800 text-neutral-500",
+                      "w-[26px] h-[26px] rounded-full flex items-center justify-center text-[11px] font-semibold transition-colors duration-200",
+                      completed || active
+                        ? "bg-[image:var(--gradient-hero)] text-white shadow-[var(--shadow-glow-sm)]"
+                        : "bg-neutral-800 text-neutral-500",
                     )}
                   >
                     {i + 1}
@@ -66,7 +70,7 @@ export default function CustomerAuthPage() {
           {state.signupStep === 3 && <DoneStep flow={flow} />}
         </Card>
       ) : (
-        <Card elevation="md" className="w-full max-w-[420px] p-9 gap-5">
+        <Card elevation="glow" className="w-full max-w-[420px] p-9 gap-5">
           <LoginPanel flow={flow} />
         </Card>
       )}

@@ -7,7 +7,7 @@ export function VerifyStep({ flow }: { flow: ProviderAuthFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Verify your email</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Verify your email</h2>
       <p className="text-[13px] text-neutral-400">
         Enter the 6-digit code sent to {state.accEmail}.
       </p>

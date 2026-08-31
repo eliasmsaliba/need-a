@@ -16,7 +16,7 @@ export function Review({ flow }: { flow: BookingFlow }) {
     return (
       <div className="flex flex-col gap-3.5 items-start">
         <Tag variant="accent">Review submitted</Tag>
-        <h2 className="text-[22px] font-medium">Thanks for booking with Need-A</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Thanks for booking with Need-A</h2>
         <p className="text-neutral-400 text-[13px] max-w-[50ch]">
           {finalProvider?.name} completed your {categoryName} job for R{pricing.total.toFixed(2)}. A
           receipt has been sent to your email.
@@ -30,7 +30,7 @@ export function Review({ flow }: { flow: BookingFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">How did {finalProvider?.name} do?</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">How did {finalProvider?.name} do?</h2>
       <div className="flex gap-1.5">
         {[1, 2, 3, 4, 5].map((n) => (
           <button

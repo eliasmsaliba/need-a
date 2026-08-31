@@ -21,8 +21,8 @@ export default function ProviderAuthPage() {
 
   return (
     <div className="flex-1 flex flex-col">
-      <nav className="flex items-center justify-between py-3 px-10">
-        <span className="text-lg font-medium">Need-A Pro</span>
+      <nav className="sticky top-0 z-20 flex items-center justify-between py-3 px-10 bg-bg/70 backdrop-blur-xl border-b border-divider">
+        <span className="text-lg font-semibold">Need-A Pro</span>
         <SegmentedControl
           name="mode"
           value={state.mode}
@@ -43,7 +43,7 @@ export default function ProviderAuthPage() {
             />
           </aside>
 
-          <Card elevation="md" className="flex-1 p-5 md:p-9 gap-[22px] min-h-[600px]">
+          <Card elevation="glow" className="flex-1 p-5 md:p-9 gap-[22px] min-h-[600px]">
             {currentStep === "account" && <AccountStep flow={flow} />}
             {currentStep === "verify" && <VerifyStep flow={flow} />}
             {currentStep === "business" && <BusinessStep flow={flow} />}

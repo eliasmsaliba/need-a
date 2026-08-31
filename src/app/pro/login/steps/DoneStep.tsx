@@ -8,7 +8,7 @@ export function DoneStep({ flow }: { flow: ProviderAuthFlow }) {
   return (
     <div className="flex flex-col gap-3.5 items-start">
       <Tag variant="accent">Application submitted</Tag>
-      <h2 className="text-[22px] font-medium">Thanks, {bizFirstName} — you&apos;re under review</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Thanks, {bizFirstName} — you&apos;re under review</h2>
       <p className="text-[13px] text-neutral-400 max-w-[60ch]">
         Verification typically takes 24–48 hours. We&apos;ll email you at {state.accEmail}{" "}
         once you&apos;re approved to start accepting jobs.

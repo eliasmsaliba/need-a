@@ -24,8 +24,8 @@ export function ProviderDashboard({
 
   return (
     <div className="flex-1 flex flex-col">
-      <nav className="flex flex-wrap items-center gap-4 py-3 px-4 md:px-10">
-        <span className="text-lg font-medium mr-auto">Need-A Pro</span>
+      <nav className="sticky top-0 z-20 flex flex-wrap items-center gap-4 py-3 px-4 md:px-10 bg-bg/70 backdrop-blur-xl border-b border-divider">
+        <span className="text-lg font-semibold mr-auto">Need-A Pro</span>
         <SegmentedControl<Tab>
           name="tab"
           value={tab}

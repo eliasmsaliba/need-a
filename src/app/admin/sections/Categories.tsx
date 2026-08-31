@@ -7,7 +7,7 @@ export function Categories({ flow }: { flow: AdminConsoleFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">Categories &amp; pricing</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">Categories &amp; pricing</h2>
       <div className="flex flex-col gap-3">
         {state.categories.map((cat) => (
           <div key={cat.id} className="flex items-center gap-6 py-4 px-5 rounded-md bg-surface">

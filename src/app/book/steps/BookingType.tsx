@@ -16,7 +16,7 @@ export function BookingType({ flow }: { flow: BookingFlow }) {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="text-[22px] font-medium">Choose how you&apos;d like to book</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Choose how you&apos;d like to book</h2>
         <p className="text-neutral-400 text-[13px]">
           {categoryName} · {flow.state.location}
         </p>

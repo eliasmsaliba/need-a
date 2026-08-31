@@ -1,36 +1,35 @@
 import { CATEGORIES } from "../data";
+import { CATEGORY_ICONS } from "../category-icons";
 import { Tag } from "@/components/ui/Tag";
-import { cn } from "@/lib/cn";
+import { IconTile } from "@/components/ui/IconTile";
 import type { BookingFlow } from "../useBookingFlow";
 
 export function ServiceSelect({ flow }: { flow: BookingFlow }) {
   return (
     <>
       <div className="flex flex-col gap-1">
-        <h2 className="text-[22px] font-medium">What do you need help with?</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">What do you need help with?</h2>
         <p className="text-neutral-400 text-[13px]">
           Pick a category to get matched with verified pros.
         </p>
       </div>
-      <div className="flex flex-col border border-neutral-800 rounded-md overflow-hidden">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {CATEGORIES.map((c) => {
           const selected = flow.state.category === c.id;
           return (
-            <button
+            <IconTile
               key={c.id}
-              type="button"
+              icon={CATEGORY_ICONS[c.id]}
+              label={c.name}
+              selected={selected}
               onClick={() => flow.selectCategory(c.id)}
-              className={cn(
-                "flex items-center justify-between py-3.5 px-4 text-left cursor-pointer hover:bg-neutral-800/60",
-                selected && "bg-neutral-800",
-              )}
-            >
-              <span className="text-sm">{c.name}</span>
-              <div className="flex gap-2 items-center">
-                {c.popular && <Tag variant="neutral">Popular</Tag>}
-                {selected && <Tag variant="accent">Selected</Tag>}
-              </div>
-            </button>
+              badge={
+                <div className="flex gap-1.5">
+                  {c.popular && <Tag variant="accent-3">Popular</Tag>}
+                  {selected && <Tag variant="accent">Selected</Tag>}
+                </div>
+              }
+            />
           );
         })}
       </div>
