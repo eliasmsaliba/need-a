@@ -7,7 +7,7 @@ import { BOOKING_TYPE_LABELS } from "../book/data";
 import { bookingRefFor } from "@/lib/booking-status";
 import { getCategoriesAdmin } from "@/lib/categories";
 import { AdminConsole } from "./AdminConsole";
-import type { RealBooking, RealCustomer, RealProvider, RealRegistration } from "./types";
+import type { RealBooking, RealCustomer, RealProvider, RealRegistration, RealTeamMember } from "./types";
 
 const PROVIDER_STATUS_LABEL = {
   pending_verification: "Pending verification",
@@ -30,7 +30,7 @@ export default async function AdminPage() {
     .select()
     .from(adminProfiles)
     .where(eq(adminProfiles.userId, session.user.id));
-  if (!profile) redirect("/admin/login");
+  if (!profile || !profile.active) redirect("/admin/login");
 
   const providerRows = await db
     .select({
@@ -134,6 +134,19 @@ export default async function AdminPage() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 50);
 
+  const teamRows = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      subRole: adminProfiles.subRole,
+      active: adminProfiles.active,
+    })
+    .from(users)
+    .innerJoin(adminProfiles, eq(adminProfiles.userId, users.id))
+    .where(eq(users.role, "admin"));
+
+  const team: RealTeamMember[] = teamRows;
+
   return (
     <AdminConsole
       subRole={profile.subRole}
@@ -143,6 +156,7 @@ export default async function AdminPage() {
       initialBookings={realBookings}
       initialCategories={categoriesFull}
       initialRegistrations={registrations}
+      initialTeam={team}
     />
   );
 }

@@ -6,11 +6,14 @@ import {
   assignProviderAction,
   advanceBookingStatusAction,
   createCategoryAction,
+  inviteTeamMemberAction,
   toggleCustomerSuspendAction,
   toggleProviderSuspendAction,
+  toggleTeamMemberActiveAction,
   updateCategoryAction,
   updateCustomerAction,
   updateProviderAction,
+  updateTeamMemberRoleAction,
   verifyProviderAction,
   type CreateCategoryInput,
   type UpdateCategoryInput,
@@ -20,12 +23,14 @@ import {
 import { ADMIN_STATUS_LABELS } from "@/lib/booking-status";
 import type { CategoryRow } from "@/lib/categories";
 import type {
+  AdminSubRole,
   MockDispute,
   MockPayout,
   RealBooking,
   RealCustomer,
   RealProvider,
   RealRegistration,
+  RealTeamMember,
   SectionKey,
 } from "./types";
 
@@ -38,6 +43,7 @@ interface AdminState {
   providers: RealProvider[];
   customers: RealCustomer[];
   registrations: RealRegistration[];
+  team: RealTeamMember[];
 }
 
 type Action =
@@ -51,7 +57,9 @@ type Action =
   | { type: "SET_PROVIDER_STATUS"; id: string; status: RealProvider["status"] }
   | { type: "PATCH_PROVIDER"; id: string; patch: Partial<RealProvider> }
   | { type: "SET_CUSTOMER_STATUS"; id: string; status: RealCustomer["status"] }
-  | { type: "PATCH_CUSTOMER"; id: string; patch: Partial<RealCustomer> };
+  | { type: "PATCH_CUSTOMER"; id: string; patch: Partial<RealCustomer> }
+  | { type: "ADD_TEAM_MEMBER"; member: RealTeamMember }
+  | { type: "PATCH_TEAM_MEMBER"; id: string; patch: Partial<RealTeamMember> };
 
 function reducer(state: AdminState, action: Action): AdminState {
   switch (action.type) {
@@ -108,6 +116,13 @@ function reducer(state: AdminState, action: Action): AdminState {
         ...state,
         customers: state.customers.map((c) => (c.id === action.id ? { ...c, ...action.patch } : c)),
       };
+    case "ADD_TEAM_MEMBER":
+      return { ...state, team: [...state.team, action.member] };
+    case "PATCH_TEAM_MEMBER":
+      return {
+        ...state,
+        team: state.team.map((t) => (t.id === action.id ? { ...t, ...action.patch } : t)),
+      };
     default:
       return state;
   }
@@ -119,6 +134,7 @@ export function useAdminConsole(
   initialBookings: RealBooking[],
   initialCategories: CategoryRow[],
   initialRegistrations: RealRegistration[],
+  initialTeam: RealTeamMember[],
 ) {
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     section: "dashboard" as SectionKey,
@@ -129,6 +145,7 @@ export function useAdminConsole(
     providers: initialProviders,
     customers: initialCustomers,
     registrations: initialRegistrations,
+    team: initialTeam,
   }));
 
   const setSection = (section: SectionKey) => dispatch({ type: "SET_SECTION", section });
@@ -218,6 +235,31 @@ export function useAdminConsole(
     }
   }
 
+  async function inviteTeamMember(email: string, subRole: AdminSubRole) {
+    const result = await inviteTeamMemberAction(email, subRole);
+    if ("success" in result) {
+      dispatch({
+        type: "ADD_TEAM_MEMBER",
+        member: { id: result.id, email: email.trim().toLowerCase(), subRole, active: true },
+      });
+    }
+    return result;
+  }
+
+  async function updateTeamMemberRole(id: string, subRole: AdminSubRole) {
+    const result = await updateTeamMemberRoleAction(id, subRole);
+    if ("success" in result) dispatch({ type: "PATCH_TEAM_MEMBER", id, patch: { subRole } });
+    return result;
+  }
+
+  async function toggleTeamMemberActive(id: string) {
+    const result = await toggleTeamMemberActiveAction(id);
+    if ("success" in result) {
+      dispatch({ type: "PATCH_TEAM_MEMBER", id, patch: { active: result.active } });
+    }
+    return result;
+  }
+
   const activeProviders = state.providers.filter((p) => p.status === "Active");
 
   const activeJobsCount = state.bookings.filter(
@@ -259,6 +301,9 @@ export function useAdminConsole(
     verifyProvider,
     toggleProviderSuspend,
     toggleCustomerSuspend,
+    inviteTeamMember,
+    updateTeamMemberRole,
+    toggleTeamMemberActive,
     activeProviders,
     activeJobsCount,
     gmvToday,

@@ -134,6 +134,7 @@ export const adminProfiles = pgTable("admin_profiles", {
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
   subRole: adminSubRole("sub_role").notNull().default("ops"),
+  active: boolean("active").notNull().default(true),
 });
 
 export const otpCodes = pgTable("otp_codes", {

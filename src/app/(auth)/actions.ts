@@ -1,7 +1,6 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { AuthError } from "next-auth";
 import { signIn, signOut } from "@/auth";
@@ -10,13 +9,7 @@ import { users, type UserRole } from "@/db/schema";
 import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 import { issuePasswordResetToken, consumePasswordResetToken } from "@/lib/password-reset";
 import { checkRateLimit } from "@/lib/rate-limit";
-
-async function getBaseUrl() {
-  const h = await headers();
-  const host = h.get("host");
-  const protocol = host?.startsWith("localhost") ? "http" : "https";
-  return `${protocol}://${host}`;
-}
+import { getBaseUrl } from "@/lib/base-url";
 
 export async function createAccount(
   role: "customer" | "provider",

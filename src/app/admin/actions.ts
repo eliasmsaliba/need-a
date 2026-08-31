@@ -1,5 +1,7 @@
 "use server";
 
+import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
@@ -9,12 +11,17 @@ import {
   categories,
   customerProfiles,
   providerProfiles,
+  users,
   type BookingStatus,
 } from "@/db/schema";
 import { advanceBookingStatus } from "@/lib/bookings";
+import { issueAdminInviteToken } from "@/lib/admin-invite";
+import { getBaseUrl } from "@/lib/base-url";
 import type { AdminSubRole } from "./types";
 
-async function requireAdmin(allowed?: AdminSubRole[]): Promise<AdminSubRole> {
+async function requireAdmin(
+  allowed?: AdminSubRole[],
+): Promise<{ userId: string; subRole: AdminSubRole }> {
   const session = await auth();
   if (!session?.user || session.user.role !== "admin") {
     throw new Error("Not authorized.");
@@ -23,9 +30,9 @@ async function requireAdmin(allowed?: AdminSubRole[]): Promise<AdminSubRole> {
     .select()
     .from(adminProfiles)
     .where(eq(adminProfiles.userId, session.user.id));
-  if (!profile) throw new Error("Not authorized.");
+  if (!profile || !profile.active) throw new Error("Not authorized.");
   if (allowed && !allowed.includes(profile.subRole)) throw new Error("Not authorized.");
-  return profile.subRole;
+  return { userId: session.user.id, subRole: profile.subRole };
 }
 
 export async function verifyProviderAction(userId: string): Promise<{ success: true } | { error: string }> {
@@ -214,4 +221,75 @@ export async function updateCustomerAction(
   }
   await db.update(customerProfiles).set(input).where(eq(customerProfiles.userId, userId));
   return { success: true };
+}
+
+export async function inviteTeamMemberAction(
+  email: string,
+  subRole: AdminSubRole,
+): Promise<{ success: true; id: string } | { error: string }> {
+  try {
+    await requireAdmin(["ops"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+
+  const trimmedEmail = email.trim().toLowerCase();
+  if (!trimmedEmail) return { error: "Email is required." };
+
+  const [existing] = await db.select().from(users).where(eq(users.email, trimmedEmail));
+  if (existing) return { error: "An account with this email already exists." };
+
+  const placeholderHash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
+  const [user] = await db
+    .insert(users)
+    .values({ email: trimmedEmail, passwordHash: placeholderHash, role: "admin", emailVerified: true })
+    .returning({ id: users.id });
+
+  await db.insert(adminProfiles).values({ userId: user.id, subRole, active: true });
+
+  try {
+    const baseUrl = await getBaseUrl();
+    await issueAdminInviteToken(trimmedEmail, baseUrl);
+  } catch (err) {
+    await db.delete(users).where(eq(users.id, user.id));
+    console.error("Failed to send admin invite email:", err);
+    return { error: "Couldn't send the invite email right now. Please try again shortly." };
+  }
+
+  return { success: true, id: user.id };
+}
+
+export async function updateTeamMemberRoleAction(
+  userId: string,
+  subRole: AdminSubRole,
+): Promise<{ success: true } | { error: string }> {
+  let caller;
+  try {
+    caller = await requireAdmin(["ops"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  if (caller.userId === userId) return { error: "You can't change your own role." };
+
+  await db.update(adminProfiles).set({ subRole }).where(eq(adminProfiles.userId, userId));
+  return { success: true };
+}
+
+export async function toggleTeamMemberActiveAction(
+  userId: string,
+): Promise<{ success: true; active: boolean } | { error: string }> {
+  let caller;
+  try {
+    caller = await requireAdmin(["ops"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  if (caller.userId === userId) return { error: "You can't deactivate your own account." };
+
+  const [row] = await db.select().from(adminProfiles).where(eq(adminProfiles.userId, userId));
+  if (!row) return { error: "Team member not found." };
+
+  const nextActive = !row.active;
+  await db.update(adminProfiles).set({ active: nextActive }).where(eq(adminProfiles.userId, userId));
+  return { success: true, active: nextActive };
 }

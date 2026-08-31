@@ -22,6 +22,7 @@ export type SectionKey =
   | "payments"
   | "categories"
   | "registrations"
+  | "team"
   | "reviews";
 
 export interface RealProvider {
@@ -50,6 +51,13 @@ export interface RealCustomer {
   jobs: number;
   spend: number;
   status: "Active" | "Suspended";
+}
+
+export interface RealTeamMember {
+  id: string;
+  email: string;
+  subRole: AdminSubRole;
+  active: boolean;
 }
 
 export interface RealRegistration {

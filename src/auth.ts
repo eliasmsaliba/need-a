@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { users, type UserRole } from "@/db/schema";
+import { adminProfiles, users, type UserRole } from "@/db/schema";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
@@ -24,6 +24,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
+
+        if (user.role === "admin") {
+          const [profile] = await db
+            .select()
+            .from(adminProfiles)
+            .where(eq(adminProfiles.userId, user.id));
+          if (!profile?.active) return null;
+        }
 
         return { id: user.id, email: user.email, role: user.role };
       },

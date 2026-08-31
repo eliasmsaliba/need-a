@@ -14,6 +14,7 @@ export const NAV: { key: SectionKey; label: string; roles: AdminSubRole[] }[] = 
   { key: "payments", label: "Payments & payouts", roles: ["ops", "finance"] },
   { key: "categories", label: "Categories & pricing", roles: ["ops", "finance"] },
   { key: "registrations", label: "Registrations", roles: ["ops", "support"] },
+  { key: "team", label: "Team", roles: ["ops"] },
   { key: "reviews", label: "Reviews & disputes", roles: ["ops", "support"] },
 ];
 

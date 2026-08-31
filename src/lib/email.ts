@@ -22,3 +22,13 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string) {
   });
   if (error) throw new Error(`Failed to send password reset email: ${error.message}`);
 }
+
+export async function sendAdminInviteEmail(to: string, inviteUrl: string) {
+  const { error } = await resend.emails.send({
+    from,
+    to,
+    subject: "You've been invited to the Need-A admin console",
+    text: `You've been invited to join the Need-A admin team. Set your password to get started: ${inviteUrl}\n\nThis link expires in 30 minutes.`,
+  });
+  if (error) throw new Error(`Failed to send admin invite email: ${error.message}`);
+}
