@@ -15,6 +15,7 @@ export const providerStatus = pgEnum("provider_status", [
   "active",
   "suspended",
 ]);
+export type ProviderStatus = (typeof providerStatus.enumValues)[number];
 export const customerStatus = pgEnum("customer_status", ["active", "suspended"]);
 export const adminSubRole = pgEnum("admin_sub_role", ["ops", "support", "finance"]);
 export const paymentMethod = pgEnum("payment_method", ["card", "eft"]);
