@@ -4,7 +4,7 @@ import { useMemo, useReducer } from "react";
 import { ESTIMATED_HOURS, VAT_RATE } from "./data";
 import { advanceMyBookingStatusAction, createBooking } from "./actions";
 import { getMatchingProviders } from "./provider-actions";
-import type { BookingState, BookingType, CategoryId, MatchedProvider, StepKey } from "./types";
+import type { BookingState, BookingType, Category, CategoryId, MatchedProvider, StepKey } from "./types";
 
 function initialState(initialAddress: string): BookingState {
   return {
@@ -82,7 +82,7 @@ function reducer(state: BookingState, action: Action): BookingState {
   }
 }
 
-export function useBookingFlow(initialAddress: string) {
+export function useBookingFlow(initialAddress: string, categories: Category[]) {
   const [state, dispatch] = useReducer(reducer, initialAddress, initialState);
 
   const patch = (p: Partial<BookingState>) => dispatch({ type: "PATCH", patch: p });
@@ -203,6 +203,7 @@ export function useBookingFlow(initialAddress: string) {
   return {
     state,
     patch,
+    categories,
     seq,
     stepIdx,
     currentStep,

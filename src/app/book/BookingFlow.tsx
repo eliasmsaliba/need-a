@@ -14,9 +14,16 @@ import { Confirm } from "./steps/Confirm";
 import { Track } from "./steps/Track";
 import { Pay } from "./steps/Pay";
 import { Review } from "./steps/Review";
+import type { Category } from "./types";
 
-export function BookingFlow({ initialAddress }: { initialAddress: string }) {
-  const flow = useBookingFlow(initialAddress);
+export function BookingFlow({
+  initialAddress,
+  initialCategories,
+}: {
+  initialAddress: string;
+  initialCategories: Category[];
+}) {
+  const flow = useBookingFlow(initialAddress, initialCategories);
 
   return (
     <div className="flex-1 min-h-0 pb-20">

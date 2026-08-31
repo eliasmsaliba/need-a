@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { addresses } from "@/db/schema";
+import { getCategories } from "@/lib/categories";
 import { BookingFlow } from "./BookingFlow";
 
 export default async function BookPage() {
@@ -16,5 +17,7 @@ export default async function BookPage() {
     .where(eq(addresses.userId, session.user.id))
     .limit(1);
 
-  return <BookingFlow initialAddress={savedAddress?.text ?? ""} />;
+  const categories = await getCategories({ activeOnly: true });
+
+  return <BookingFlow initialAddress={savedAddress?.text ?? ""} initialCategories={categories} />;
 }

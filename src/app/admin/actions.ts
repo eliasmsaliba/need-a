@@ -3,7 +3,14 @@
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { adminProfiles, bookings, customerProfiles, providerProfiles, type BookingStatus } from "@/db/schema";
+import {
+  adminProfiles,
+  bookings,
+  categories,
+  customerProfiles,
+  providerProfiles,
+  type BookingStatus,
+} from "@/db/schema";
 import { advanceBookingStatus } from "@/lib/bookings";
 import type { AdminSubRole } from "./types";
 
@@ -99,4 +106,112 @@ export async function advanceBookingStatusAction(
   const status = await advanceBookingStatus(bookingId);
   if (!status) return { error: "Booking not found." };
   return { success: true, status };
+}
+
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+export interface CreateCategoryInput {
+  name: string;
+  icon: string;
+  popular: boolean;
+  calloutFee: number;
+  baseRate: number;
+}
+
+export async function createCategoryAction(
+  input: CreateCategoryInput,
+): Promise<{ success: true; id: string } | { error: string }> {
+  try {
+    await requireAdmin(["ops", "finance"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  const name = input.name.trim();
+  if (!name) return { error: "Category name is required." };
+
+  const id = slugify(name);
+  if (!id) return { error: "Category name is required." };
+
+  const [existing] = await db.select({ id: categories.id }).from(categories).where(eq(categories.id, id));
+  if (existing) return { error: "A category with that name already exists." };
+
+  await db.insert(categories).values({
+    id,
+    name,
+    icon: input.icon,
+    popular: input.popular,
+    calloutFee: input.calloutFee,
+    baseRate: input.baseRate,
+  });
+  return { success: true, id };
+}
+
+export interface UpdateCategoryInput {
+  name?: string;
+  icon?: string;
+  popular?: boolean;
+  active?: boolean;
+  calloutFee?: number;
+  baseRate?: number;
+}
+
+export async function updateCategoryAction(
+  id: string,
+  input: UpdateCategoryInput,
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin(["ops", "finance"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  await db.update(categories).set(input).where(eq(categories.id, id));
+  return { success: true };
+}
+
+export interface UpdateProviderInput {
+  bizName: string;
+  bizPhone: string;
+  bizTradingName: string;
+  selectedCategories: string[];
+  serviceRadius: number;
+  hourlyRate: number;
+  calloutFee: number;
+  guaranteeDays: number;
+}
+
+export async function updateProviderAction(
+  userId: string,
+  input: UpdateProviderInput,
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin(["ops", "support"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  await db.update(providerProfiles).set(input).where(eq(providerProfiles.userId, userId));
+  return { success: true };
+}
+
+export interface UpdateCustomerInput {
+  fullName: string;
+  phone: string;
+}
+
+export async function updateCustomerAction(
+  userId: string,
+  input: UpdateCustomerInput,
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin(["ops", "support"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  await db.update(customerProfiles).set(input).where(eq(customerProfiles.userId, userId));
+  return { success: true };
 }

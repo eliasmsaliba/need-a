@@ -1,13 +1,4 @@
-import type { Category, StepKey } from "./types";
-
-export const CATEGORIES: Category[] = [
-  { id: "plumbing", name: "Plumbing", popular: true },
-  { id: "electrical", name: "Electrical" },
-  { id: "handyman", name: "Handyman" },
-  { id: "cleaning", name: "Home cleaning" },
-  { id: "appliance", name: "Appliance repair" },
-  { id: "gardening", name: "Gardening" },
-];
+import type { StepKey } from "./types";
 
 export const REVIEW_TAGS = [
   "Punctuality",

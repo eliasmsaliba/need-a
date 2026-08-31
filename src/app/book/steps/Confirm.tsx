@@ -1,4 +1,3 @@
-import { CATEGORIES } from "../data";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
@@ -6,7 +5,7 @@ import type { BookingFlow } from "../useBookingFlow";
 
 export function Confirm({ flow }: { flow: BookingFlow }) {
   const categoryName =
-    CATEGORIES.find((c) => c.id === flow.state.category)?.name ?? "Select a service";
+    flow.categories.find((c) => c.id === flow.state.category)?.name ?? "Select a service";
   const p = flow.finalProvider;
 
   return (

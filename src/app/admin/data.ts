@@ -1,4 +1,4 @@
-import type { AdminSubRole, MockCategory, MockDispute, MockPayout, SectionKey } from "./types";
+import type { AdminSubRole, MockDispute, MockPayout, SectionKey } from "./types";
 
 export const ROLE_LABELS: Record<AdminSubRole, string> = {
   ops: "Ops Admin",
@@ -13,19 +13,9 @@ export const NAV: { key: SectionKey; label: string; roles: AdminSubRole[] }[] = 
   { key: "customers", label: "Customers", roles: ["ops", "support"] },
   { key: "payments", label: "Payments & payouts", roles: ["ops", "finance"] },
   { key: "categories", label: "Categories & pricing", roles: ["ops", "finance"] },
+  { key: "registrations", label: "Registrations", roles: ["ops", "support"] },
   { key: "reviews", label: "Reviews & disputes", roles: ["ops", "support"] },
 ];
-
-export function seedCategories(): MockCategory[] {
-  return [
-    { id: "plumbing", name: "Plumbing", calloutFee: 150, baseRate: 350 },
-    { id: "electrical", name: "Electrical", calloutFee: 150, baseRate: 380 },
-    { id: "handyman", name: "Handyman", calloutFee: 120, baseRate: 300 },
-    { id: "cleaning", name: "Home cleaning", calloutFee: 0, baseRate: 250 },
-    { id: "appliance", name: "Appliance repair", calloutFee: 150, baseRate: 320 },
-    { id: "gardening", name: "Gardening", calloutFee: 0, baseRate: 220 },
-  ];
-}
 
 export function seedPayouts(): MockPayout[] {
   return [

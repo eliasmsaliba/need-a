@@ -12,6 +12,7 @@ import {
   verifyOtpAction,
 } from "../../(auth)/actions";
 import { saveProviderStep } from "./provider-actions";
+import type { Category } from "@/app/book/types";
 
 function initialState(): ProviderAuthState {
   return {
@@ -81,7 +82,7 @@ function reducer(state: ProviderAuthState, action: Action): ProviderAuthState {
   }
 }
 
-export function useProviderAuthFlow() {
+export function useProviderAuthFlow(categories: Category[]) {
   const [state, dispatch] = useReducer(reducer, undefined, initialState);
   const router = useRouter();
 
@@ -229,6 +230,7 @@ export function useProviderAuthFlow() {
     state,
     patch,
     dispatch,
+    categories,
     stepIdx,
     currentStep,
     accMismatch,

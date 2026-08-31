@@ -1,5 +1,5 @@
 import { Star } from "@phosphor-icons/react/dist/ssr";
-import { CATEGORIES, REVIEW_TAGS } from "../data";
+import { REVIEW_TAGS } from "../data";
 import { Field } from "@/components/ui/Field";
 import { Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +12,7 @@ export function Review({ flow }: { flow: BookingFlow }) {
 
   if (state.reviewSubmitted) {
     const categoryName =
-      CATEGORIES.find((c) => c.id === state.category)?.name ?? "service";
+      flow.categories.find((c) => c.id === state.category)?.name ?? "service";
     return (
       <div className="flex flex-col gap-3.5 items-start">
         <Tag variant="accent">Review submitted</Tag>

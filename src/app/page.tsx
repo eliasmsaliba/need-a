@@ -3,8 +3,10 @@ import { ShieldCheck, ArrowsClockwise, LockKey } from "@phosphor-icons/react/dis
 import { Button } from "@/components/ui/Button";
 import { Tag } from "@/components/ui/Tag";
 import { IconTile } from "@/components/ui/IconTile";
-import { CATEGORIES } from "./book/data";
-import { CATEGORY_ICONS } from "./book/category-icons";
+import { getCategoryIcon } from "./book/category-icons";
+import { getCategories } from "@/lib/categories";
+
+export const dynamic = "force-dynamic";
 
 const TRUST_TAGS = [
   { icon: ShieldCheck, label: "Verified pros" },
@@ -12,7 +14,9 @@ const TRUST_TAGS = [
   { icon: LockKey, label: "Secure payment" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const categories = await getCategories({ activeOnly: true });
+
   return (
     <div className="flex-1 flex flex-col">
       <nav className="sticky top-0 z-20 flex flex-wrap items-center gap-x-6 gap-y-2 py-3 px-4 md:px-10 bg-bg/70 backdrop-blur-xl border-b border-divider">
@@ -72,11 +76,11 @@ export default function Home() {
         </div>
 
         <div className="relative grid grid-cols-3 md:grid-cols-6 gap-3 max-w-3xl w-full">
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <IconTile
               key={c.id}
               href="/book"
-              icon={CATEGORY_ICONS[c.id]}
+              icon={getCategoryIcon(c.icon)}
               label={c.name}
               badge={c.popular ? <Tag variant="accent-3">Popular</Tag> : undefined}
             />

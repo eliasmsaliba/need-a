@@ -1,4 +1,4 @@
-import type { BookingStatus } from "@/db/schema";
+import type { BookingStatus, UserRole } from "@/db/schema";
 
 export type AdminSubRole = "ops" | "support" | "finance";
 
@@ -21,32 +21,44 @@ export type SectionKey =
   | "customers"
   | "payments"
   | "categories"
+  | "registrations"
   | "reviews";
 
 export interface RealProvider {
   id: string;
   name: string;
+  email: string;
   badge: "New" | "Verified";
   rating: number;
   jobs: number;
   status: "Pending verification" | "Active" | "Suspended";
   idDocumentUrl: string | null;
+  bizPhone: string;
+  bizTradingName: string;
+  selectedCategories: string[];
+  serviceRadius: number;
+  hourlyRate: number;
+  calloutFee: number;
+  guaranteeDays: number;
 }
 
 export interface RealCustomer {
   id: string;
   name: string;
   email: string;
+  phone: string;
   jobs: number;
   spend: number;
   status: "Active" | "Suspended";
 }
 
-export interface MockCategory {
+export interface RealRegistration {
   id: string;
   name: string;
-  calloutFee: number;
-  baseRate: number;
+  email: string;
+  role: UserRole;
+  createdAt: string;
+  status: string;
 }
 
 export interface MockPayout {

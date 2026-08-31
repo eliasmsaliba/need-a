@@ -1,5 +1,4 @@
-import { CATEGORIES } from "../data";
-import { CATEGORY_ICONS } from "../category-icons";
+import { getCategoryIcon } from "../category-icons";
 import { Tag } from "@/components/ui/Tag";
 import { IconTile } from "@/components/ui/IconTile";
 import type { BookingFlow } from "../useBookingFlow";
@@ -14,12 +13,12 @@ export function ServiceSelect({ flow }: { flow: BookingFlow }) {
         </p>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {CATEGORIES.map((c) => {
+        {flow.categories.map((c) => {
           const selected = flow.state.category === c.id;
           return (
             <IconTile
               key={c.id}
-              icon={CATEGORY_ICONS[c.id]}
+              icon={getCategoryIcon(c.icon)}
               label={c.name}
               selected={selected}
               onClick={() => flow.selectCategory(c.id)}

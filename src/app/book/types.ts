@@ -1,14 +1,9 @@
-export type CategoryId =
-  | "plumbing"
-  | "electrical"
-  | "handyman"
-  | "cleaning"
-  | "appliance"
-  | "gardening";
+export type CategoryId = string;
 
 export interface Category {
   id: CategoryId;
   name: string;
+  icon: string;
   popular?: boolean;
 }
 

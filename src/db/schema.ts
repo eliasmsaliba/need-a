@@ -118,6 +118,17 @@ export const bookings = pgTable("bookings", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const categories = pgTable("categories", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  icon: text("icon").notNull().default("wrench"),
+  popular: boolean("popular").notNull().default(false),
+  active: boolean("active").notNull().default(true),
+  calloutFee: integer("callout_fee").notNull().default(0),
+  baseRate: integer("base_rate").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const adminProfiles = pgTable("admin_profiles", {
   userId: uuid("user_id")
     .primaryKey()

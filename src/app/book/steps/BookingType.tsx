@@ -1,4 +1,3 @@
-import { CATEGORIES } from "../data";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Field } from "@/components/ui/Field";
@@ -10,7 +9,7 @@ import type { BookingType as BookingTypeValue } from "../types";
 
 export function BookingType({ flow }: { flow: BookingFlow }) {
   const categoryName =
-    CATEGORIES.find((c) => c.id === flow.state.category)?.name ?? "Select a service";
+    flow.categories.find((c) => c.id === flow.state.category)?.name ?? "Select a service";
   const { bookingType, schedDate, schedTime } = flow.state;
 
   return (

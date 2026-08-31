@@ -1,7 +1,5 @@
-import { CATEGORIES } from "@/app/book/data";
 import type { ProviderStepKey } from "./types";
 
-export const PROVIDER_CATEGORY_NAMES = CATEGORIES.map((c) => c.name);
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export const PROVIDER_STEPS: ProviderStepKey[] = [

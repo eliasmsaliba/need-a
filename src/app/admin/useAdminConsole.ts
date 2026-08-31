@@ -1,44 +1,57 @@
 "use client";
 
 import { useReducer } from "react";
-import { seedCategories, seedDisputes, seedPayouts } from "./data";
+import { seedDisputes, seedPayouts } from "./data";
 import {
   assignProviderAction,
   advanceBookingStatusAction,
+  createCategoryAction,
   toggleCustomerSuspendAction,
   toggleProviderSuspendAction,
+  updateCategoryAction,
+  updateCustomerAction,
+  updateProviderAction,
   verifyProviderAction,
+  type CreateCategoryInput,
+  type UpdateCategoryInput,
+  type UpdateCustomerInput,
+  type UpdateProviderInput,
 } from "./actions";
 import { ADMIN_STATUS_LABELS } from "@/lib/booking-status";
+import type { CategoryRow } from "@/lib/categories";
 import type {
-  MockCategory,
   MockDispute,
   MockPayout,
   RealBooking,
   RealCustomer,
   RealProvider,
+  RealRegistration,
   SectionKey,
 } from "./types";
 
 interface AdminState {
   section: SectionKey;
   bookings: RealBooking[];
-  categories: MockCategory[];
+  categories: CategoryRow[];
   payouts: MockPayout[];
   disputes: MockDispute[];
   providers: RealProvider[];
   customers: RealCustomer[];
+  registrations: RealRegistration[];
 }
 
 type Action =
   | { type: "SET_SECTION"; section: SectionKey }
   | { type: "SET_BOOKING"; id: string; patch: Partial<RealBooking> }
   | { type: "MARK_PAYOUT_PAID"; id: string }
-  | { type: "UPDATE_CATEGORY"; id: string; field: "calloutFee" | "baseRate"; value: number }
+  | { type: "ADD_CATEGORY"; category: CategoryRow }
+  | { type: "PATCH_CATEGORY"; id: string; patch: Partial<CategoryRow> }
   | { type: "RESOLVE_DISPUTE"; id: string }
   | { type: "DISMISS_DISPUTE"; id: string }
   | { type: "SET_PROVIDER_STATUS"; id: string; status: RealProvider["status"] }
-  | { type: "SET_CUSTOMER_STATUS"; id: string; status: RealCustomer["status"] };
+  | { type: "PATCH_PROVIDER"; id: string; patch: Partial<RealProvider> }
+  | { type: "SET_CUSTOMER_STATUS"; id: string; status: RealCustomer["status"] }
+  | { type: "PATCH_CUSTOMER"; id: string; patch: Partial<RealCustomer> };
 
 function reducer(state: AdminState, action: Action): AdminState {
   switch (action.type) {
@@ -54,12 +67,12 @@ function reducer(state: AdminState, action: Action): AdminState {
         ...state,
         payouts: state.payouts.map((p) => (p.id === action.id ? { ...p, status: "Paid" } : p)),
       };
-    case "UPDATE_CATEGORY":
+    case "ADD_CATEGORY":
+      return { ...state, categories: [...state.categories, action.category] };
+    case "PATCH_CATEGORY":
       return {
         ...state,
-        categories: state.categories.map((c) =>
-          c.id === action.id ? { ...c, [action.field]: action.value } : c,
-        ),
+        categories: state.categories.map((c) => (c.id === action.id ? { ...c, ...action.patch } : c)),
       };
     case "RESOLVE_DISPUTE":
       return {
@@ -78,12 +91,22 @@ function reducer(state: AdminState, action: Action): AdminState {
           p.id === action.id ? { ...p, status: action.status } : p,
         ),
       };
+    case "PATCH_PROVIDER":
+      return {
+        ...state,
+        providers: state.providers.map((p) => (p.id === action.id ? { ...p, ...action.patch } : p)),
+      };
     case "SET_CUSTOMER_STATUS":
       return {
         ...state,
         customers: state.customers.map((c) =>
           c.id === action.id ? { ...c, status: action.status } : c,
         ),
+      };
+    case "PATCH_CUSTOMER":
+      return {
+        ...state,
+        customers: state.customers.map((c) => (c.id === action.id ? { ...c, ...action.patch } : c)),
       };
     default:
       return state;
@@ -94,23 +117,61 @@ export function useAdminConsole(
   initialProviders: RealProvider[],
   initialCustomers: RealCustomer[],
   initialBookings: RealBooking[],
+  initialCategories: CategoryRow[],
+  initialRegistrations: RealRegistration[],
 ) {
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     section: "dashboard" as SectionKey,
     bookings: initialBookings,
-    categories: seedCategories(),
+    categories: initialCategories,
     payouts: seedPayouts(),
     disputes: seedDisputes(),
     providers: initialProviders,
     customers: initialCustomers,
+    registrations: initialRegistrations,
   }));
 
   const setSection = (section: SectionKey) => dispatch({ type: "SET_SECTION", section });
   const markPayoutPaid = (id: string) => dispatch({ type: "MARK_PAYOUT_PAID", id });
-  const updateCategory = (id: string, field: "calloutFee" | "baseRate", value: string) =>
-    dispatch({ type: "UPDATE_CATEGORY", id, field, value: Number(value) || 0 });
   const resolveDispute = (id: string) => dispatch({ type: "RESOLVE_DISPUTE", id });
   const dismissDispute = (id: string) => dispatch({ type: "DISMISS_DISPUTE", id });
+
+  async function addCategory(input: CreateCategoryInput) {
+    const result = await createCategoryAction(input);
+    if ("success" in result) {
+      dispatch({
+        type: "ADD_CATEGORY",
+        category: { ...input, id: result.id, active: true },
+      });
+    }
+    return result;
+  }
+
+  async function updateCategory(id: string, patch: UpdateCategoryInput) {
+    const result = await updateCategoryAction(id, patch);
+    if ("success" in result) dispatch({ type: "PATCH_CATEGORY", id, patch });
+    return result;
+  }
+
+  async function updateProvider(id: string, input: UpdateProviderInput) {
+    const result = await updateProviderAction(id, input);
+    if ("success" in result) {
+      dispatch({
+        type: "PATCH_PROVIDER",
+        id,
+        patch: { name: input.bizName, ...input },
+      });
+    }
+    return result;
+  }
+
+  async function updateCustomer(id: string, input: UpdateCustomerInput) {
+    const result = await updateCustomerAction(id, input);
+    if ("success" in result) {
+      dispatch({ type: "PATCH_CUSTOMER", id, patch: { name: input.fullName, phone: input.phone } });
+    }
+    return result;
+  }
 
   async function assignProvider(bookingId: string, providerId: string) {
     if (!providerId) return;
@@ -189,7 +250,10 @@ export function useAdminConsole(
     assignProvider,
     advanceBookingStatus,
     markPayoutPaid,
+    addCategory,
     updateCategory,
+    updateProvider,
+    updateCustomer,
     resolveDispute,
     dismissDispute,
     verifyProvider,

@@ -9,8 +9,10 @@ import { Providers } from "./sections/Providers";
 import { Customers } from "./sections/Customers";
 import { Payments } from "./sections/Payments";
 import { Categories } from "./sections/Categories";
+import { Registrations } from "./sections/Registrations";
 import { Reviews } from "./sections/Reviews";
-import type { AdminSubRole, RealBooking, RealCustomer, RealProvider } from "./types";
+import type { AdminSubRole, RealBooking, RealCustomer, RealProvider, RealRegistration } from "./types";
+import type { CategoryRow } from "@/lib/categories";
 
 interface AdminConsoleProps {
   subRole: AdminSubRole;
@@ -18,6 +20,8 @@ interface AdminConsoleProps {
   initialProviders: RealProvider[];
   initialCustomers: RealCustomer[];
   initialBookings: RealBooking[];
+  initialCategories: CategoryRow[];
+  initialRegistrations: RealRegistration[];
 }
 
 export function AdminConsole({
@@ -26,8 +30,16 @@ export function AdminConsole({
   initialProviders,
   initialCustomers,
   initialBookings,
+  initialCategories,
+  initialRegistrations,
 }: AdminConsoleProps) {
-  const flow = useAdminConsole(initialProviders, initialCustomers, initialBookings);
+  const flow = useAdminConsole(
+    initialProviders,
+    initialCustomers,
+    initialBookings,
+    initialCategories,
+    initialRegistrations,
+  );
   const navItems = NAV.filter((n) => n.roles.includes(subRole));
 
   return (
@@ -46,6 +58,7 @@ export function AdminConsole({
         {flow.state.section === "customers" && <Customers flow={flow} />}
         {flow.state.section === "payments" && <Payments flow={flow} />}
         {flow.state.section === "categories" && <Categories flow={flow} />}
+        {flow.state.section === "registrations" && <Registrations flow={flow} />}
         {flow.state.section === "reviews" && <Reviews flow={flow} />}
       </main>
     </div>

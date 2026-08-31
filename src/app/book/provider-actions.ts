@@ -3,11 +3,11 @@
 import { and, arrayContains, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { providerProfiles, users } from "@/db/schema";
-import { CATEGORIES } from "./data";
+import { getCategoryName } from "@/lib/categories";
 import type { CategoryId, MatchedProvider } from "./types";
 
 export async function getMatchingProviders(categoryId: CategoryId): Promise<MatchedProvider[]> {
-  const categoryName = CATEGORIES.find((c) => c.id === categoryId)?.name;
+  const categoryName = await getCategoryName(categoryId);
   if (!categoryName) return [];
 
   const rows = await db

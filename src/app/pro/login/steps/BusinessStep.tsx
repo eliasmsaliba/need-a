@@ -1,7 +1,6 @@
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 import { ChipToggle } from "@/components/ui/ChipToggle";
-import { PROVIDER_CATEGORY_NAMES } from "../data";
 import type { ProviderAuthFlow } from "../useProviderAuthFlow";
 
 export function BusinessStep({ flow }: { flow: ProviderAuthFlow }) {
@@ -26,12 +25,12 @@ export function BusinessStep({ flow }: { flow: ProviderAuthFlow }) {
       </Field>
       <Field label="Categories you service" className="flex flex-col gap-2">
         <div className="flex gap-2 flex-wrap">
-          {PROVIDER_CATEGORY_NAMES.map((name) => (
+          {flow.categories.map((c) => (
             <ChipToggle
-              key={name}
-              label={name}
-              active={state.selectedCategories.includes(name)}
-              onToggle={() => dispatch({ type: "TOGGLE_CATEGORY", name })}
+              key={c.id}
+              label={c.name}
+              active={state.selectedCategories.includes(c.name)}
+              onToggle={() => dispatch({ type: "TOGGLE_CATEGORY", name: c.name })}
             />
           ))}
         </div>

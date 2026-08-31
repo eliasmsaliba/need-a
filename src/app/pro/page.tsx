@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { bookings, customerProfiles, providerProfiles } from "@/db/schema";
-import { BOOKING_TYPE_LABELS, CATEGORIES } from "../book/data";
+import { BOOKING_TYPE_LABELS } from "../book/data";
 import { bookingRefFor } from "@/lib/booking-status";
+import { getCategoriesAdmin } from "@/lib/categories";
 import { ProviderDashboard } from "./ProviderDashboard";
 import type { ProviderProfileData, RealJob } from "./types";
 
@@ -54,10 +55,13 @@ export default async function ProPage() {
     .where(eq(bookings.finalProviderId, session.user.id))
     .orderBy(desc(bookings.createdAt));
 
+  const categories = await getCategoriesAdmin();
+  const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
+
   const jobs: RealJob[] = jobRows.map((j) => ({
     id: j.id,
     ref: bookingRefFor(j.seq),
-    category: CATEGORIES.find((c) => c.id === j.category)?.name ?? j.category,
+    category: categoryNameById.get(j.category) ?? j.category,
     bookingTypeLabel: BOOKING_TYPE_LABELS[j.bookingType],
     customerName: j.customerName || "Customer",
     customerPhone: j.customerPhone,

@@ -1,4 +1,3 @@
-import { CATEGORIES } from "../data";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
@@ -7,7 +6,7 @@ import type { BookingFlow } from "../useBookingFlow";
 
 export function DescribeProblem({ flow }: { flow: BookingFlow }) {
   const categoryName =
-    CATEGORIES.find((c) => c.id === flow.state.category)?.name ?? "Select a service";
+    flow.categories.find((c) => c.id === flow.state.category)?.name ?? "Select a service";
 
   return (
     <>
