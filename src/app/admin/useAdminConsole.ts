@@ -1,25 +1,20 @@
 "use client";
 
-import { useMemo, useReducer } from "react";
+import { useReducer } from "react";
+import { seedCategories, seedDisputes, seedPayouts } from "./data";
 import {
-  BOOKING_STATUSES,
-  seedBookings,
-  seedCategories,
-  seedDisputes,
-  seedMockProviders,
-  seedPayouts,
-} from "./data";
-import {
+  assignProviderAction,
+  advanceBookingStatusAction,
   toggleCustomerSuspendAction,
   toggleProviderSuspendAction,
   verifyProviderAction,
 } from "./actions";
+import { ADMIN_STATUS_LABELS } from "@/lib/booking-status";
 import type {
-  MockBooking,
   MockCategory,
   MockDispute,
   MockPayout,
-  MockProvider,
+  RealBooking,
   RealCustomer,
   RealProvider,
   SectionKey,
@@ -27,19 +22,17 @@ import type {
 
 interface AdminState {
   section: SectionKey;
-  bookings: MockBooking[];
+  bookings: RealBooking[];
   categories: MockCategory[];
   payouts: MockPayout[];
   disputes: MockDispute[];
-  mockProviders: MockProvider[];
   providers: RealProvider[];
   customers: RealCustomer[];
 }
 
 type Action =
   | { type: "SET_SECTION"; section: SectionKey }
-  | { type: "ASSIGN_PROVIDER"; bookingId: string; providerId: string }
-  | { type: "ADVANCE_BOOKING"; bookingId: string }
+  | { type: "SET_BOOKING"; id: string; patch: Partial<RealBooking> }
   | { type: "MARK_PAYOUT_PAID"; id: string }
   | { type: "UPDATE_CATEGORY"; id: string; field: "calloutFee" | "baseRate"; value: number }
   | { type: "RESOLVE_DISPUTE"; id: string }
@@ -51,21 +44,10 @@ function reducer(state: AdminState, action: Action): AdminState {
   switch (action.type) {
     case "SET_SECTION":
       return { ...state, section: action.section };
-    case "ASSIGN_PROVIDER":
+    case "SET_BOOKING":
       return {
         ...state,
-        bookings: state.bookings.map((b) =>
-          b.id === action.bookingId ? { ...b, providerId: action.providerId, status: "Assigned" } : b,
-        ),
-      };
-    case "ADVANCE_BOOKING":
-      return {
-        ...state,
-        bookings: state.bookings.map((b) => {
-          if (b.id !== action.bookingId) return b;
-          const i = BOOKING_STATUSES.indexOf(b.status as (typeof BOOKING_STATUSES)[number]);
-          return { ...b, status: BOOKING_STATUSES[Math.min(BOOKING_STATUSES.length - 1, i + 1)] };
-        }),
+        bookings: state.bookings.map((b) => (b.id === action.id ? { ...b, ...action.patch } : b)),
       };
     case "MARK_PAYOUT_PAID":
       return {
@@ -108,29 +90,47 @@ function reducer(state: AdminState, action: Action): AdminState {
   }
 }
 
-export function useAdminConsole(initialProviders: RealProvider[], initialCustomers: RealCustomer[]) {
+export function useAdminConsole(
+  initialProviders: RealProvider[],
+  initialCustomers: RealCustomer[],
+  initialBookings: RealBooking[],
+) {
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     section: "dashboard" as SectionKey,
-    bookings: seedBookings(),
+    bookings: initialBookings,
     categories: seedCategories(),
     payouts: seedPayouts(),
     disputes: seedDisputes(),
-    mockProviders: seedMockProviders(),
     providers: initialProviders,
     customers: initialCustomers,
   }));
 
   const setSection = (section: SectionKey) => dispatch({ type: "SET_SECTION", section });
-  const assignProvider = (bookingId: string, providerId: string) => {
-    if (!providerId) return;
-    dispatch({ type: "ASSIGN_PROVIDER", bookingId, providerId });
-  };
-  const advanceBookingStatus = (bookingId: string) => dispatch({ type: "ADVANCE_BOOKING", bookingId });
   const markPayoutPaid = (id: string) => dispatch({ type: "MARK_PAYOUT_PAID", id });
   const updateCategory = (id: string, field: "calloutFee" | "baseRate", value: string) =>
     dispatch({ type: "UPDATE_CATEGORY", id, field, value: Number(value) || 0 });
   const resolveDispute = (id: string) => dispatch({ type: "RESOLVE_DISPUTE", id });
   const dismissDispute = (id: string) => dispatch({ type: "DISMISS_DISPUTE", id });
+
+  async function assignProvider(bookingId: string, providerId: string) {
+    if (!providerId) return;
+    const result = await assignProviderAction(bookingId, providerId);
+    if ("success" in result) {
+      const provider = state.providers.find((p) => p.id === providerId);
+      dispatch({
+        type: "SET_BOOKING",
+        id: bookingId,
+        patch: { finalProviderId: providerId, providerName: provider?.name ?? null, status: "assigned" },
+      });
+    }
+  }
+
+  async function advanceBookingStatus(bookingId: string) {
+    const result = await advanceBookingStatusAction(bookingId);
+    if ("success" in result) {
+      dispatch({ type: "SET_BOOKING", id: bookingId, patch: { status: result.status } });
+    }
+  }
 
   async function verifyProvider(id: string) {
     const result = await verifyProviderAction(id);
@@ -157,16 +157,15 @@ export function useAdminConsole(initialProviders: RealProvider[], initialCustome
     }
   }
 
-  const activeMockProviders = useMemo(
-    () => state.mockProviders.filter((p) => p.status === "Active"),
-    [state.mockProviders],
-  );
+  const activeProviders = state.providers.filter((p) => p.status === "Active");
 
-  const activeJobsCount = state.bookings.filter((b) => !["Done", "Cancelled"].includes(b.status)).length;
+  const activeJobsCount = state.bookings.filter(
+    (b) => !["done", "cancelled"].includes(b.status),
+  ).length;
   const gmvToday = state.bookings
-    .filter((b) => b.status !== "Cancelled")
+    .filter((b) => b.status !== "cancelled")
     .reduce((sum, b) => sum + b.amount, 0);
-  const ratedProviders = state.mockProviders.filter((p) => p.rating > 0);
+  const ratedProviders = state.providers.filter((p) => p.rating > 0);
   const avgRating = ratedProviders.length
     ? (ratedProviders.reduce((a, b) => a + b.rating, 0) / ratedProviders.length).toFixed(1)
     : "0.0";
@@ -196,13 +195,14 @@ export function useAdminConsole(initialProviders: RealProvider[], initialCustome
     verifyProvider,
     toggleProviderSuspend,
     toggleCustomerSuspend,
-    activeMockProviders,
+    activeProviders,
     activeJobsCount,
     gmvToday,
     avgRating,
     openDisputesCount,
     chartBars,
     recentBookings,
+    statusLabel: ADMIN_STATUS_LABELS,
   };
 }
 

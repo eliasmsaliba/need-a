@@ -1,4 +1,4 @@
-import { ARRIVAL_PIN, BOOKING_REF, CATEGORIES } from "../data";
+import { CATEGORIES } from "../data";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
@@ -16,7 +16,7 @@ export function Confirm({ flow }: { flow: BookingFlow }) {
         <div className="flex justify-between text-[13px]">
           <span className="text-neutral-400">Provider</span>
           <span>
-            {p.name} · {p.badge}
+            {p?.name} · {p?.badge}
           </span>
         </div>
         <div className="flex justify-between text-[13px]">
@@ -31,17 +31,15 @@ export function Confirm({ flow }: { flow: BookingFlow }) {
         </div>
         <div className="flex justify-between text-[13px]">
           <span className="text-neutral-400">Booking ref</span>
-          <span>{BOOKING_REF}</span>
+          <span>{flow.state.bookingRef}</span>
         </div>
         <div className="flex justify-between text-sm font-semibold">
           <span>Est. total</span>
-          <span>
-            R{p.estimate}–R{p.estimate + 200}
-          </span>
+          <span>R{flow.pricing.total.toFixed(2)}</span>
         </div>
       </Card>
       <Tag variant="outline" className="w-fit">
-        Arrival PIN {ARRIVAL_PIN} shared once en route
+        Arrival PIN {flow.state.arrivalPin} shared once en route
       </Tag>
       <Button variant="primary" className="w-fit" onClick={flow.next}>
         Confirm &amp; authorise payment

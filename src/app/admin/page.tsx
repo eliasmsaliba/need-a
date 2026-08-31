@@ -1,10 +1,12 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { adminProfiles, customerProfiles, providerProfiles, users } from "@/db/schema";
+import { adminProfiles, bookings, customerProfiles, providerProfiles, users } from "@/db/schema";
+import { BOOKING_TYPE_LABELS, CATEGORIES } from "../book/data";
+import { bookingRefFor } from "@/lib/booking-status";
 import { AdminConsole } from "./AdminConsole";
-import type { RealCustomer, RealProvider } from "./types";
+import type { RealBooking, RealCustomer, RealProvider } from "./types";
 
 const PROVIDER_STATUS_LABEL = {
   pending_verification: "Pending verification",
@@ -69,12 +71,30 @@ export default async function AdminPage() {
     status: CUSTOMER_STATUS_LABEL[c.status],
   }));
 
+  const customerNameById = new Map(customerRows.map((c) => [c.id, c.fullName || c.email]));
+  const providerNameById = new Map(providerRows.map((p) => [p.id, p.bizName || p.email]));
+
+  const bookingRows = await db.select().from(bookings).orderBy(desc(bookings.createdAt));
+
+  const realBookings: RealBooking[] = bookingRows.map((b) => ({
+    id: b.id,
+    ref: bookingRefFor(b.seq),
+    customerName: customerNameById.get(b.customerId) ?? "Customer",
+    category: CATEGORIES.find((c) => c.id === b.category)?.name ?? b.category,
+    bookingTypeLabel: BOOKING_TYPE_LABELS[b.bookingType],
+    status: b.status,
+    finalProviderId: b.finalProviderId,
+    providerName: b.finalProviderId ? (providerNameById.get(b.finalProviderId) ?? null) : null,
+    amount: b.amount,
+  }));
+
   return (
     <AdminConsole
       subRole={profile.subRole}
       adminEmail={session.user.email ?? ""}
       initialProviders={providers}
       initialCustomers={customers}
+      initialBookings={realBookings}
     />
   );
 }

@@ -18,7 +18,7 @@ export function Review({ flow }: { flow: BookingFlow }) {
         <Tag variant="accent">Review submitted</Tag>
         <h2 className="text-[22px] font-medium">Thanks for booking with Need-A</h2>
         <p className="text-neutral-400 text-[13px] max-w-[50ch]">
-          {finalProvider.name} completed your {categoryName} job for R{pricing.total.toFixed(2)}. A
+          {finalProvider?.name} completed your {categoryName} job for R{pricing.total.toFixed(2)}. A
           receipt has been sent to your email.
         </p>
         <Button variant="secondary" onClick={flow.reset}>
@@ -30,7 +30,7 @@ export function Review({ flow }: { flow: BookingFlow }) {
 
   return (
     <>
-      <h2 className="text-[22px] font-medium">How did {finalProvider.name} do?</h2>
+      <h2 className="text-[22px] font-medium">How did {finalProvider?.name} do?</h2>
       <div className="flex gap-1.5">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
@@ -72,7 +72,7 @@ export function Review({ flow }: { flow: BookingFlow }) {
         <Textarea
           rows={3}
           value={state.comment}
-          onChange={(e) => flow.setComment(e.target.value)}
+          onChange={(e) => flow.patch({ comment: e.target.value })}
         />
       </Field>
       <Button

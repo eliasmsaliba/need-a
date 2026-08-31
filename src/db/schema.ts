@@ -19,6 +19,18 @@ export const customerStatus = pgEnum("customer_status", ["active", "suspended"])
 export const adminSubRole = pgEnum("admin_sub_role", ["ops", "support", "finance"]);
 export const paymentMethod = pgEnum("payment_method", ["card", "eft"]);
 export const otpPurpose = pgEnum("otp_purpose", ["verify_email"]);
+export const bookingType = pgEnum("booking_type", ["fixnow", "schedule", "quotes"]);
+export type BookingType = (typeof bookingType.enumValues)[number];
+export const bookingStatus = pgEnum("booking_status", [
+  "pending",
+  "assigned",
+  "en_route",
+  "arrived",
+  "working",
+  "done",
+  "cancelled",
+]);
+export type BookingStatus = (typeof bookingStatus.enumValues)[number];
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -75,6 +87,30 @@ export const providerProfiles = pgTable("provider_profiles", {
   accountNumber: text("account_number").notNull().default(""),
   branchCode: text("branch_code").notNull().default(""),
   status: providerStatus("status").notNull().default("pending_verification"),
+  guaranteeDays: integer("guarantee_days").notNull().default(30),
+});
+
+export const bookings = pgTable("bookings", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  seq: integer("seq").generatedAlwaysAsIdentity(),
+  customerId: uuid("customer_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  category: text("category").notNull(),
+  bookingType: bookingType("booking_type").notNull(),
+  address: text("address").notNull(),
+  location: text("location").notNull(),
+  running: boolean("running").notNull(),
+  emergency: boolean("emergency").notNull(),
+  notes: text("notes").notNull().default(""),
+  schedDate: text("sched_date"),
+  schedTime: text("sched_time"),
+  selectedProviderIds: text("selected_provider_ids").array().notNull().default([]),
+  finalProviderId: uuid("final_provider_id").references(() => users.id),
+  amount: integer("amount").notNull(),
+  status: bookingStatus("status").notNull().default("pending"),
+  arrivalPin: text("arrival_pin").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export const adminProfiles = pgTable("admin_profiles", {

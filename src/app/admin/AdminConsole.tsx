@@ -10,17 +10,24 @@ import { Customers } from "./sections/Customers";
 import { Payments } from "./sections/Payments";
 import { Categories } from "./sections/Categories";
 import { Reviews } from "./sections/Reviews";
-import type { AdminSubRole, RealCustomer, RealProvider } from "./types";
+import type { AdminSubRole, RealBooking, RealCustomer, RealProvider } from "./types";
 
 interface AdminConsoleProps {
   subRole: AdminSubRole;
   adminEmail: string;
   initialProviders: RealProvider[];
   initialCustomers: RealCustomer[];
+  initialBookings: RealBooking[];
 }
 
-export function AdminConsole({ subRole, adminEmail, initialProviders, initialCustomers }: AdminConsoleProps) {
-  const flow = useAdminConsole(initialProviders, initialCustomers);
+export function AdminConsole({
+  subRole,
+  adminEmail,
+  initialProviders,
+  initialCustomers,
+  initialBookings,
+}: AdminConsoleProps) {
+  const flow = useAdminConsole(initialProviders, initialCustomers, initialBookings);
   const navItems = NAV.filter((n) => n.roles.includes(subRole));
 
   return (

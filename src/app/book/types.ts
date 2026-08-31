@@ -12,23 +12,19 @@ export interface Category {
   popular?: boolean;
 }
 
-export type ProviderBadge = "Verified" | "Elite";
-
-export interface Provider {
+export interface MatchedProvider {
   id: string;
   name: string;
-  badge: ProviderBadge;
-  rating: number;
-  jobs: number;
-  eta: string;
-  estimate: number;
+  badge: "Verified";
   guaranteeDays: number;
-  hours: number;
-  rate: number;
-  materials: number;
+  hourlyRate: number;
+  calloutFee: number;
+  serviceRadius: number;
 }
 
 export type BookingType = "fixnow" | "schedule" | "quotes";
+
+export type TrackStatus = "assigned" | "en_route" | "arrived" | "working" | "done";
 
 export type StepKey =
   | "service"
@@ -52,9 +48,15 @@ export interface BookingState {
   bookingType: BookingType;
   schedDate: string;
   schedTime: string;
+  matchedProviders: MatchedProvider[];
+  matchesLoading: boolean;
   selectedProviders: string[];
   finalProviderId: string | null;
-  trackIndex: number;
+  bookingId: string | null;
+  bookingRef: string | null;
+  arrivalPin: string | null;
+  trackStatus: TrackStatus | null;
+  submitting: boolean;
   rating: number;
   reviewTags: string[];
   comment: string;

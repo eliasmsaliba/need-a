@@ -1,11 +1,12 @@
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
 import { Table, TD, TH, TR } from "@/components/ui/Table";
-import { BOOKING_STATUSES, statusVariant } from "../data";
+import { TRACK_STATUS_ORDER, trackIndexOf } from "@/lib/booking-status";
+import { statusVariant } from "../data";
 import type { AdminConsoleFlow } from "../useAdminConsole";
 
 export function Dispatch({ flow }: { flow: AdminConsoleFlow }) {
-  const { state, activeMockProviders, assignProvider, advanceBookingStatus } = flow;
+  const { state, activeProviders, assignProvider, advanceBookingStatus, statusLabel } = flow;
 
   return (
     <>
@@ -25,18 +26,19 @@ export function Dispatch({ flow }: { flow: AdminConsoleFlow }) {
         </thead>
         <tbody>
           {state.bookings.map((bk) => {
-            const providerName = state.mockProviders.find((p) => p.id === bk.providerId)?.name;
-            const needsAssign = !bk.providerId && bk.status !== "Cancelled";
-            const canAdvance = bk.providerId && !["Done", "Cancelled"].includes(bk.status);
-            const nextIdx = Math.min(4, BOOKING_STATUSES.indexOf(bk.status as (typeof BOOKING_STATUSES)[number]) + 1);
+            const needsAssign = !bk.finalProviderId && bk.status !== "cancelled";
+            const canAdvance = bk.finalProviderId && !["done", "cancelled"].includes(bk.status);
+            const trackIdx = trackIndexOf(bk.status);
+            const nextStatus =
+              trackIdx >= 0 ? TRACK_STATUS_ORDER[Math.min(TRACK_STATUS_ORDER.length - 1, trackIdx + 1)] : null;
             return (
               <TR key={bk.id}>
-                <TD>{bk.id}</TD>
-                <TD>{bk.customer}</TD>
+                <TD>{bk.ref}</TD>
+                <TD>{bk.customerName}</TD>
                 <TD>{bk.category}</TD>
-                <TD>{bk.type}</TD>
+                <TD>{bk.bookingTypeLabel}</TD>
                 <TD>
-                  <Tag variant={statusVariant(bk.status)}>{bk.status}</Tag>
+                  <Tag variant={statusVariant(statusLabel[bk.status])}>{statusLabel[bk.status]}</Tag>
                 </TD>
                 <TD>
                   {needsAssign ? (
@@ -46,27 +48,34 @@ export function Dispatch({ flow }: { flow: AdminConsoleFlow }) {
                       onChange={(e) => assignProvider(bk.id, e.target.value)}
                     >
                       <option value="">Assign pro…</option>
-                      {activeMockProviders.map((p) => (
+                      {activeProviders.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name}
                         </option>
                       ))}
                     </select>
                   ) : (
-                    <span>{providerName}</span>
+                    <span>{bk.providerName}</span>
                   )}
                 </TD>
                 <TD className="text-right">R{bk.amount}</TD>
                 <TD>
-                  {canAdvance && (
+                  {canAdvance && nextStatus && (
                     <Button variant="secondary" onClick={() => advanceBookingStatus(bk.id)}>
-                      Mark {BOOKING_STATUSES[nextIdx]}
+                      Mark {statusLabel[nextStatus]}
                     </Button>
                   )}
                 </TD>
               </TR>
             );
           })}
+          {state.bookings.length === 0 && (
+            <TR>
+              <TD colSpan={8} className="text-neutral-400">
+                No bookings yet.
+              </TD>
+            </TR>
+          )}
         </tbody>
       </Table>
     </>

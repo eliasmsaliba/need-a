@@ -5,7 +5,8 @@ import { statusVariant } from "../data";
 import type { AdminConsoleFlow } from "../useAdminConsole";
 
 export function Dashboard({ flow }: { flow: AdminConsoleFlow }) {
-  const { activeJobsCount, gmvToday, avgRating, openDisputesCount, chartBars, recentBookings } = flow;
+  const { activeJobsCount, gmvToday, avgRating, openDisputesCount, chartBars, recentBookings, statusLabel } =
+    flow;
 
   return (
     <>
@@ -59,15 +60,22 @@ export function Dashboard({ flow }: { flow: AdminConsoleFlow }) {
           <tbody>
             {recentBookings.map((rb) => (
               <TR key={rb.id}>
-                <TD>{rb.id}</TD>
-                <TD>{rb.customer}</TD>
+                <TD>{rb.ref}</TD>
+                <TD>{rb.customerName}</TD>
                 <TD>{rb.category}</TD>
                 <TD>
-                  <Tag variant={statusVariant(rb.status)}>{rb.status}</Tag>
+                  <Tag variant={statusVariant(statusLabel[rb.status])}>{statusLabel[rb.status]}</Tag>
                 </TD>
                 <TD className="text-right">R{rb.amount}</TD>
               </TR>
             ))}
+            {recentBookings.length === 0 && (
+              <TR>
+                <TD colSpan={5} className="text-neutral-400">
+                  No bookings yet.
+                </TD>
+              </TR>
+            )}
           </tbody>
         </Table>
       </Card>

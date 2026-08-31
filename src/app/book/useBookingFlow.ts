@@ -1,24 +1,32 @@
 "use client";
 
 import { useMemo, useReducer } from "react";
-import { CALL_OUT_FEE, PROVIDERS, VAT_RATE } from "./data";
-import type { BookingState, BookingType, CategoryId, StepKey } from "./types";
+import { ESTIMATED_HOURS, VAT_RATE } from "./data";
+import { advanceMyBookingStatusAction, createBooking } from "./actions";
+import { getMatchingProviders } from "./provider-actions";
+import type { BookingState, BookingType, CategoryId, MatchedProvider, StepKey } from "./types";
 
-function initialState(): BookingState {
+function initialState(initialAddress: string): BookingState {
   return {
     stepIndex: 0,
     category: null,
-    address: "Menlyn, Unit 4",
-    location: "Kitchen — under sink",
+    address: initialAddress,
+    location: "",
     running: true,
     emergency: true,
     notes: "",
     bookingType: "fixnow",
     schedDate: "",
     schedTime: "",
+    matchedProviders: [],
+    matchesLoading: false,
     selectedProviders: [],
     finalProviderId: null,
-    trackIndex: 1,
+    bookingId: null,
+    bookingRef: null,
+    arrivalPin: null,
+    trackStatus: null,
+    submitting: false,
     rating: 0,
     reviewTags: [],
     comment: "",
@@ -34,62 +42,20 @@ function getSeq(bookingType: BookingType): StepKey[] {
 }
 
 type Action =
-  | { type: "NEXT" }
-  | { type: "BACK" }
-  | { type: "RESET" }
+  | { type: "PATCH"; patch: Partial<BookingState> }
   | { type: "SELECT_CATEGORY"; id: CategoryId }
-  | { type: "SET_ADDRESS"; value: string }
-  | { type: "SET_LOCATION"; value: string }
-  | { type: "SET_NOTES"; value: string }
-  | { type: "SET_RUNNING"; value: boolean }
-  | { type: "SET_EMERGENCY"; value: boolean }
   | { type: "SET_BOOKING_TYPE"; value: BookingType }
-  | { type: "SET_SCHED_DATE"; value: string }
-  | { type: "SET_SCHED_TIME"; value: string }
   | { type: "TOGGLE_PROVIDER"; id: string }
-  | { type: "CHOOSE_QUOTE"; id: string }
-  | { type: "ADVANCE_TRACK" }
-  | { type: "SET_RATING"; value: number }
-  | { type: "TOGGLE_REVIEW_TAG"; label: string }
-  | { type: "SET_COMMENT"; value: string }
-  | { type: "SUBMIT_REVIEW" };
-
-function advanceStep(state: BookingState): BookingState {
-  const seq = getSeq(state.bookingType);
-  const key = seq[state.stepIndex];
-  const next = { ...state, stepIndex: Math.min(seq.length - 1, state.stepIndex + 1) };
-  if (key === "matches" && state.bookingType !== "quotes") {
-    next.finalProviderId = state.selectedProviders[0] ?? null;
-  }
-  return next;
-}
+  | { type: "TOGGLE_REVIEW_TAG"; label: string };
 
 function reducer(state: BookingState, action: Action): BookingState {
   switch (action.type) {
-    case "NEXT":
-      return advanceStep(state);
-    case "BACK":
-      return { ...state, stepIndex: Math.max(0, state.stepIndex - 1) };
-    case "RESET":
-      return initialState();
+    case "PATCH":
+      return { ...state, ...action.patch };
     case "SELECT_CATEGORY":
       return { ...state, category: action.id };
-    case "SET_ADDRESS":
-      return { ...state, address: action.value };
-    case "SET_LOCATION":
-      return { ...state, location: action.value };
-    case "SET_NOTES":
-      return { ...state, notes: action.value };
-    case "SET_RUNNING":
-      return { ...state, running: action.value };
-    case "SET_EMERGENCY":
-      return { ...state, emergency: action.value };
     case "SET_BOOKING_TYPE":
       return { ...state, bookingType: action.value };
-    case "SET_SCHED_DATE":
-      return { ...state, schedDate: action.value };
-    case "SET_SCHED_TIME":
-      return { ...state, schedTime: action.value };
     case "TOGGLE_PROVIDER": {
       if (state.bookingType === "quotes") {
         const has = state.selectedProviders.includes(action.id);
@@ -102,12 +68,6 @@ function reducer(state: BookingState, action: Action): BookingState {
       }
       return { ...state, selectedProviders: [action.id] };
     }
-    case "CHOOSE_QUOTE":
-      return advanceStep({ ...state, finalProviderId: action.id });
-    case "ADVANCE_TRACK":
-      return { ...state, trackIndex: Math.min(4, state.trackIndex + 1) };
-    case "SET_RATING":
-      return { ...state, rating: action.value };
     case "TOGGLE_REVIEW_TAG": {
       const has = state.reviewTags.includes(action.label);
       return {
@@ -117,27 +77,26 @@ function reducer(state: BookingState, action: Action): BookingState {
           : [...state.reviewTags, action.label],
       };
     }
-    case "SET_COMMENT":
-      return { ...state, comment: action.value };
-    case "SUBMIT_REVIEW":
-      return { ...state, reviewSubmitted: true };
     default:
       return state;
   }
 }
 
-export function useBookingFlow() {
-  const [state, dispatch] = useReducer(reducer, undefined, initialState);
+export function useBookingFlow(initialAddress: string) {
+  const [state, dispatch] = useReducer(reducer, initialAddress, initialState);
+
+  const patch = (p: Partial<BookingState>) => dispatch({ type: "PATCH", patch: p });
 
   const seq = useMemo(() => getSeq(state.bookingType), [state.bookingType]);
   const stepIdx = Math.min(state.stepIndex, seq.length - 1);
   const currentStep = seq[stepIdx];
 
-  const finalProvider =
-    PROVIDERS.find((p) => p.id === state.finalProviderId) ?? PROVIDERS[0];
-  const labour = Math.round(finalProvider.hours * finalProvider.rate);
-  const materials = finalProvider.materials;
-  const subtotal = CALL_OUT_FEE + labour + materials;
+  const finalProvider: MatchedProvider | undefined = state.matchedProviders.find(
+    (p) => p.id === state.finalProviderId,
+  );
+  const labour = finalProvider ? Math.round(ESTIMATED_HOURS * finalProvider.hourlyRate) : 0;
+  const calloutFee = finalProvider?.calloutFee ?? 0;
+  const subtotal = calloutFee + labour;
   const vat = Math.round(subtotal * VAT_RATE * 100) / 100;
   const total = Math.round((subtotal + vat) * 100) / 100;
 
@@ -150,42 +109,119 @@ export function useBookingFlow() {
   if (currentStep === "describe") continueDisabled = !state.address;
   if (currentStep === "matches") continueDisabled = state.selectedProviders.length === 0;
 
-  const actions = useMemo(
-    () => ({
-      next: () => dispatch({ type: "NEXT" }),
-      back: () => dispatch({ type: "BACK" }),
-      reset: () => dispatch({ type: "RESET" }),
-      selectCategory: (id: CategoryId) => dispatch({ type: "SELECT_CATEGORY", id }),
-      setAddress: (value: string) => dispatch({ type: "SET_ADDRESS", value }),
-      setLocation: (value: string) => dispatch({ type: "SET_LOCATION", value }),
-      setNotes: (value: string) => dispatch({ type: "SET_NOTES", value }),
-      setRunning: (value: boolean) => dispatch({ type: "SET_RUNNING", value }),
-      setEmergency: (value: boolean) => dispatch({ type: "SET_EMERGENCY", value }),
-      setBookingType: (value: BookingType) => dispatch({ type: "SET_BOOKING_TYPE", value }),
-      setSchedDate: (value: string) => dispatch({ type: "SET_SCHED_DATE", value }),
-      setSchedTime: (value: string) => dispatch({ type: "SET_SCHED_TIME", value }),
-      toggleProvider: (id: string) => dispatch({ type: "TOGGLE_PROVIDER", id }),
-      chooseQuote: (id: string) => dispatch({ type: "CHOOSE_QUOTE", id }),
-      advanceTrack: () => dispatch({ type: "ADVANCE_TRACK" }),
-      setRating: (value: number) => dispatch({ type: "SET_RATING", value }),
-      toggleReviewTag: (label: string) => dispatch({ type: "TOGGLE_REVIEW_TAG", label }),
-      setComment: (value: string) => dispatch({ type: "SET_COMMENT", value }),
-      submitReview: () => dispatch({ type: "SUBMIT_REVIEW" }),
-    }),
-    [],
-  );
+  async function createBookingAndAdvance(finalProviderId: string) {
+    patch({ submitting: true });
+    const result = await createBooking({
+      category: state.category!,
+      bookingType: state.bookingType,
+      address: state.address,
+      location: state.location,
+      running: state.running,
+      emergency: state.emergency,
+      notes: state.notes,
+      schedDate: state.schedDate,
+      schedTime: state.schedTime,
+      selectedProviderIds: state.selectedProviders,
+      finalProviderId,
+    });
+    patch({
+      submitting: false,
+      finalProviderId,
+      bookingId: result.bookingId,
+      bookingRef: result.bookingRef,
+      arrivalPin: result.arrivalPin,
+      trackStatus: "assigned",
+      stepIndex: stepIdx + 1,
+    });
+  }
+
+  async function next() {
+    if (state.submitting || state.matchesLoading) return;
+    const key = seq[stepIdx];
+
+    if (key === "type") {
+      patch({ matchesLoading: true });
+      const matched = await getMatchingProviders(state.category!);
+      patch({ matchedProviders: matched, matchesLoading: false, stepIndex: stepIdx + 1 });
+      return;
+    }
+
+    if (key === "matches" && state.bookingType !== "quotes") {
+      const finalId = state.selectedProviders[0];
+      if (!finalId) return;
+      await createBookingAndAdvance(finalId);
+      return;
+    }
+
+    patch({ stepIndex: Math.min(seq.length - 1, stepIdx + 1) });
+  }
+
+  function back() {
+    patch({ stepIndex: Math.max(0, stepIdx - 1) });
+  }
+
+  function reset() {
+    dispatch({ type: "PATCH", patch: initialState(initialAddress) });
+  }
+
+  function selectCategory(id: CategoryId) {
+    dispatch({ type: "SELECT_CATEGORY", id });
+  }
+  function setBookingType(value: BookingType) {
+    dispatch({ type: "SET_BOOKING_TYPE", value });
+  }
+  function toggleProvider(id: string) {
+    dispatch({ type: "TOGGLE_PROVIDER", id });
+  }
+
+  async function chooseQuote(providerId: string) {
+    if (state.submitting) return;
+    await createBookingAndAdvance(providerId);
+  }
+
+  async function advanceTrack() {
+    if (!state.bookingId || state.submitting) return;
+    patch({ submitting: true });
+    const result = await advanceMyBookingStatusAction(state.bookingId);
+    if ("error" in result) {
+      patch({ submitting: false });
+      return;
+    }
+    patch({ submitting: false, trackStatus: result.status });
+  }
+
+  function setRating(value: number) {
+    patch({ rating: value });
+  }
+  function toggleReviewTag(label: string) {
+    dispatch({ type: "TOGGLE_REVIEW_TAG", label });
+  }
+  function submitReview() {
+    patch({ reviewSubmitted: true });
+  }
 
   return {
     state,
+    patch,
     seq,
     stepIdx,
     currentStep,
     showBack,
     showContinue,
     continueDisabled,
-    pricing: { labour, materials, vat, total },
+    pricing: { labour, calloutFee, vat, total },
     finalProvider,
-    ...actions,
+    next,
+    back,
+    reset,
+    selectCategory,
+    setBookingType,
+    toggleProvider,
+    chooseQuote,
+    advanceTrack,
+    setRating,
+    toggleReviewTag,
+    submitReview,
   };
 }
 

@@ -3,7 +3,8 @@
 import { eq } from "drizzle-orm";
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { adminProfiles, customerProfiles, providerProfiles } from "@/db/schema";
+import { adminProfiles, bookings, customerProfiles, providerProfiles, type BookingStatus } from "@/db/schema";
+import { advanceBookingStatus } from "@/lib/bookings";
 import type { AdminSubRole } from "./types";
 
 async function requireAdmin(allowed?: AdminSubRole[]): Promise<AdminSubRole> {
@@ -69,4 +70,33 @@ export async function toggleCustomerSuspendAction(
   const nextStatus = row.status === "suspended" ? "active" : "suspended";
   await db.update(customerProfiles).set({ status: nextStatus }).where(eq(customerProfiles.userId, userId));
   return { success: true, status: nextStatus };
+}
+
+export async function assignProviderAction(
+  bookingId: string,
+  providerId: string,
+): Promise<{ success: true } | { error: string }> {
+  try {
+    await requireAdmin(["ops", "support"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  await db
+    .update(bookings)
+    .set({ finalProviderId: providerId, status: "assigned" })
+    .where(eq(bookings.id, bookingId));
+  return { success: true };
+}
+
+export async function advanceBookingStatusAction(
+  bookingId: string,
+): Promise<{ success: true; status: BookingStatus } | { error: string }> {
+  try {
+    await requireAdmin(["ops", "support"]);
+  } catch {
+    return { error: "Not authorized." };
+  }
+  const status = await advanceBookingStatus(bookingId);
+  if (!status) return { error: "Booking not found." };
+  return { success: true, status };
 }

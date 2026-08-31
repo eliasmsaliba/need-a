@@ -52,7 +52,12 @@ export function BookingType({ flow }: { flow: BookingFlow }) {
               <span className="font-medium">R150</span>
             </div>
           </Card>
-          <Button variant="primary" className="w-fit" onClick={flow.next}>
+          <Button
+            variant="primary"
+            className="w-fit"
+            disabled={flow.state.matchesLoading}
+            onClick={flow.next}
+          >
             Find providers
           </Button>
         </>
@@ -65,21 +70,21 @@ export function BookingType({ flow }: { flow: BookingFlow }) {
               <Input
                 type="date"
                 value={schedDate}
-                onChange={(e) => flow.setSchedDate(e.target.value)}
+                onChange={(e) => flow.patch({ schedDate: e.target.value })}
               />
             </Field>
             <Field label="Time">
               <Input
                 type="time"
                 value={schedTime}
-                onChange={(e) => flow.setSchedTime(e.target.value)}
+                onChange={(e) => flow.patch({ schedTime: e.target.value })}
               />
             </Field>
           </div>
           <Button
             variant="primary"
             className="w-fit"
-            disabled={!(schedDate && schedTime)}
+            disabled={!(schedDate && schedTime) || flow.state.matchesLoading}
             onClick={flow.next}
           >
             Schedule visit
@@ -95,7 +100,12 @@ export function BookingType({ flow }: { flow: BookingFlow }) {
               pros and compare standardised quotes.
             </p>
           </Card>
-          <Button variant="primary" className="w-fit" onClick={flow.next}>
+          <Button
+            variant="primary"
+            className="w-fit"
+            disabled={flow.state.matchesLoading}
+            onClick={flow.next}
+          >
             Request quotes
           </Button>
         </>

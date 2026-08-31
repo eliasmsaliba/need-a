@@ -1,7 +1,7 @@
 import { Table, TR, TH, TD } from "@/components/ui/Table";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
-import { CALL_OUT_FEE } from "../data";
+import { ESTIMATED_HOURS } from "../data";
 import type { BookingFlow } from "../useBookingFlow";
 
 export function Pay({ flow }: { flow: BookingFlow }) {
@@ -20,15 +20,11 @@ export function Pay({ flow }: { flow: BookingFlow }) {
         <tbody>
           <TR>
             <TD>Call-out fee</TD>
-            <TD className="text-right">R{CALL_OUT_FEE.toFixed(2)}</TD>
+            <TD className="text-right">R{pricing.calloutFee.toFixed(2)}</TD>
           </TR>
           <TR>
-            <TD>Labour ({finalProvider.hours}h)</TD>
+            <TD>Labour ({ESTIMATED_HOURS}h)</TD>
             <TD className="text-right">R{pricing.labour}</TD>
-          </TR>
-          <TR>
-            <TD>Materials</TD>
-            <TD className="text-right">R{pricing.materials}</TD>
           </TR>
           <TR>
             <TD>VAT (15%)</TD>
@@ -43,7 +39,7 @@ export function Pay({ flow }: { flow: BookingFlow }) {
         </tbody>
       </Table>
       <Tag variant="outline" className="w-fit">
-        {finalProvider.guaranteeDays}-day workmanship guarantee
+        {finalProvider?.guaranteeDays}-day workmanship guarantee
       </Tag>
       <Button variant="primary" className="w-fit" onClick={flow.next}>
         Approve &amp; pay R{pricing.total.toFixed(2)}

@@ -19,14 +19,14 @@ export function DescribeProblem({ flow }: { flow: BookingFlow }) {
       <Field label="Service address">
         <Input
           value={flow.state.address}
-          onChange={(e) => flow.setAddress(e.target.value)}
+          onChange={(e) => flow.patch({ address: e.target.value })}
         />
       </Field>
 
       <Field label="Where's the issue?">
         <Input
           value={flow.state.location}
-          onChange={(e) => flow.setLocation(e.target.value)}
+          onChange={(e) => flow.patch({ location: e.target.value })}
         />
       </Field>
 
@@ -39,7 +39,7 @@ export function DescribeProblem({ flow }: { flow: BookingFlow }) {
               { value: "no", label: "No" },
             ]}
             value={flow.state.running ? "yes" : "no"}
-            onChange={(v) => flow.setRunning(v === "yes")}
+            onChange={(v) => flow.patch({ running: v === "yes" })}
           />
         </Field>
         <Field label="Is this an emergency?" className="flex flex-col gap-1.5">
@@ -50,7 +50,7 @@ export function DescribeProblem({ flow }: { flow: BookingFlow }) {
               { value: "no", label: "No" },
             ]}
             value={flow.state.emergency ? "yes" : "no"}
-            onChange={(v) => flow.setEmergency(v === "yes")}
+            onChange={(v) => flow.patch({ emergency: v === "yes" })}
           />
         </Field>
       </div>
@@ -59,7 +59,7 @@ export function DescribeProblem({ flow }: { flow: BookingFlow }) {
         <Textarea
           rows={3}
           value={flow.state.notes}
-          onChange={(e) => flow.setNotes(e.target.value)}
+          onChange={(e) => flow.patch({ notes: e.target.value })}
         />
       </Field>
 

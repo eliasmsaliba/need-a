@@ -1,4 +1,4 @@
-import type { Category, Provider, StepKey } from "./types";
+import type { Category, StepKey } from "./types";
 
 export const CATEGORIES: Category[] = [
   { id: "plumbing", name: "Plumbing", popular: true },
@@ -9,48 +9,6 @@ export const CATEGORIES: Category[] = [
   { id: "gardening", name: "Gardening" },
 ];
 
-export const PROVIDERS: Provider[] = [
-  {
-    id: "thabo",
-    name: "Thabo M.",
-    badge: "Verified",
-    rating: 4.9,
-    jobs: 128,
-    eta: "22 min",
-    estimate: 450,
-    guaranteeDays: 30,
-    hours: 1.5,
-    rate: 350,
-    materials: 220,
-  },
-  {
-    id: "sarah",
-    name: "Sarah K.",
-    badge: "Verified",
-    rating: 4.8,
-    jobs: 86,
-    eta: "31 min",
-    estimate: 480,
-    guaranteeDays: 30,
-    hours: 2,
-    rate: 280,
-    materials: 240,
-  },
-  {
-    id: "given",
-    name: "Given P.",
-    badge: "Elite",
-    rating: 5.0,
-    jobs: 240,
-    eta: "40 min",
-    estimate: 510,
-    guaranteeDays: 90,
-    hours: 1,
-    rate: 600,
-    materials: 210,
-  },
-];
-
 export const REVIEW_TAGS = [
   "Punctuality",
   "Communication",
@@ -59,12 +17,16 @@ export const REVIEW_TAGS = [
   "Value",
 ];
 
-export const TRACK_LABELS = ["Accepted", "En route", "Arrived", "Working", "Done"];
-
-export const CALL_OUT_FEE = 150;
+// Flat estimated job length used for the labour-cost estimate shown before completion —
+// real providers don't have a per-job hours figure (no completed-jobs history yet).
+export const ESTIMATED_HOURS = 1.5;
 export const VAT_RATE = 0.15;
-export const BOOKING_REF = "#NA-30281";
-export const ARRIVAL_PIN = "4821";
+
+export const BOOKING_TYPE_LABELS: Record<"fixnow" | "schedule" | "quotes", string> = {
+  fixnow: "Fix Now",
+  schedule: "Schedule It",
+  quotes: "Get Quotes",
+};
 
 export const STEP_LABELS: Record<StepKey, string> = {
   service: "Service",

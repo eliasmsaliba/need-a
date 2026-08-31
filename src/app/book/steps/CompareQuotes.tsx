@@ -1,12 +1,12 @@
-import { PROVIDERS } from "../data";
 import { Table, TR, TH, TD } from "@/components/ui/Table";
 import { Button } from "@/components/ui/Button";
+import { ESTIMATED_HOURS } from "../data";
 import type { BookingFlow } from "../useBookingFlow";
 
 export function CompareQuotes({ flow }: { flow: BookingFlow }) {
   const rows = flow.state.selectedProviders
-    .map((id) => PROVIDERS.find((p) => p.id === id))
-    .filter((p): p is (typeof PROVIDERS)[number] => Boolean(p));
+    .map((id) => flow.state.matchedProviders.find((p) => p.id === id))
+    .filter((p): p is (typeof flow.state.matchedProviders)[number] => Boolean(p));
 
   return (
     <>
@@ -21,8 +21,7 @@ export function CompareQuotes({ flow }: { flow: BookingFlow }) {
           <TR>
             <TH>Pro</TH>
             <TH>Labour</TH>
-            <TH>Materials</TH>
-            <TH>Days</TH>
+            <TH>Call-out</TH>
             <TH>Guarantee</TH>
             <TH></TH>
           </TR>
@@ -31,9 +30,8 @@ export function CompareQuotes({ flow }: { flow: BookingFlow }) {
           {rows.map((p) => (
             <TR key={p.id}>
               <TD>{p.name}</TD>
-              <TD>R{Math.round(p.hours * p.rate)}</TD>
-              <TD>R{p.materials}</TD>
-              <TD>{p.hours}</TD>
+              <TD>R{Math.round(ESTIMATED_HOURS * p.hourlyRate)}</TD>
+              <TD>R{p.calloutFee}</TD>
               <TD>{p.guaranteeDays}d</TD>
               <TD>
                 <Button variant="secondary" onClick={() => flow.chooseQuote(p.id)}>

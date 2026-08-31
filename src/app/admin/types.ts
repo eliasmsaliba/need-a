@@ -1,4 +1,18 @@
+import type { BookingStatus } from "@/db/schema";
+
 export type AdminSubRole = "ops" | "support" | "finance";
+
+export interface RealBooking {
+  id: string;
+  ref: string;
+  customerName: string;
+  category: string;
+  bookingTypeLabel: string;
+  status: BookingStatus;
+  finalProviderId: string | null;
+  providerName: string | null;
+  amount: number;
+}
 
 export type SectionKey =
   | "dashboard"
@@ -27,16 +41,6 @@ export interface RealCustomer {
   status: "Active" | "Suspended";
 }
 
-export interface MockBooking {
-  id: string;
-  customer: string;
-  category: string;
-  type: string;
-  status: "Pending" | "Assigned" | "En route" | "Working" | "Done" | "Cancelled";
-  providerId: string | null;
-  amount: number;
-}
-
 export interface MockCategory {
   id: string;
   name: string;
@@ -57,13 +61,4 @@ export interface MockDispute {
   provider: string;
   reason: string;
   status: "Open" | "Resolved" | "Dismissed";
-}
-
-export interface MockProvider {
-  id: string;
-  name: string;
-  badge: "New" | "Verified" | "Elite";
-  rating: number;
-  jobs: number;
-  status: "Pending verification" | "Active" | "Suspended";
 }
