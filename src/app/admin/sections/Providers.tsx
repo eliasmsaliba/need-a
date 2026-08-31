@@ -1,11 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
 import { Table, TD, TH, TR } from "@/components/ui/Table";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { statusVariant } from "../data";
 import type { AdminConsoleFlow } from "../useAdminConsole";
 
 export function Providers({ flow }: { flow: AdminConsoleFlow }) {
   const { state, verifyProvider, toggleProviderSuspend } = flow;
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const confirmProvider = state.providers.find((p) => p.id === confirmId);
 
   return (
     <>
@@ -42,9 +48,14 @@ export function Providers({ flow }: { flow: AdminConsoleFlow }) {
                         Verify
                       </Button>
                     )}
-                    {!showVerify && (
+                    {!showVerify && p.status === "Suspended" && (
                       <Button variant="ghost" onClick={() => toggleProviderSuspend(p.id)}>
-                        {p.status === "Suspended" ? "Reinstate" : "Suspend"}
+                        Reinstate
+                      </Button>
+                    )}
+                    {!showVerify && p.status !== "Suspended" && (
+                      <Button variant="ghost" onClick={() => setConfirmId(p.id)}>
+                        Suspend
                       </Button>
                     )}
                   </div>
@@ -61,6 +72,18 @@ export function Providers({ flow }: { flow: AdminConsoleFlow }) {
           )}
         </tbody>
       </Table>
+
+      <ConfirmDialog
+        open={!!confirmProvider}
+        title="Suspend provider?"
+        body={`${confirmProvider?.name ?? "This provider"} will lose access and stop appearing in matches until reinstated.`}
+        confirmLabel="Suspend"
+        onCancel={() => setConfirmId(null)}
+        onConfirm={() => {
+          if (confirmId) toggleProviderSuspend(confirmId);
+          setConfirmId(null);
+        }}
+      />
     </>
   );
 }

@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { users, type UserRole } from "@/db/schema";
 import { issueEmailOtp, verifyEmailOtp } from "@/lib/otp";
 import { issuePasswordResetToken, consumePasswordResetToken } from "@/lib/password-reset";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 async function getBaseUrl() {
   const h = await headers();
@@ -48,6 +49,9 @@ export async function verifyOtpAction(
   userId: string,
   code: string,
 ): Promise<{ success: true } | { error: string }> {
+  const allowed = await checkRateLimit(`otp:${userId}`, { max: 5, windowMs: 10 * 60 * 1000 });
+  if (!allowed) return { error: "Too many attempts. Request a new code and try again shortly." };
+
   const ok = await verifyEmailOtp(userId, code);
   if (!ok) return { error: "That code isn't right or has expired." };
 
@@ -67,6 +71,9 @@ export async function loginAction(
   email: string,
   password: string,
 ): Promise<{ success: true; role: UserRole } | { error: string }> {
+  const allowed = await checkRateLimit(`login:${email}`, { max: 5, windowMs: 15 * 60 * 1000 });
+  if (!allowed) return { error: "Too many attempts. Try again in a few minutes." };
+
   try {
     await signIn("credentials", { email, password, redirect: false });
   } catch (err) {
@@ -79,9 +86,13 @@ export async function loginAction(
 }
 
 export async function requestPasswordResetAction(email: string): Promise<{ success: true }> {
-  const baseUrl = await getBaseUrl();
-  await issuePasswordResetToken(email, baseUrl);
-  // Always succeed regardless of whether the email exists, to avoid account enumeration.
+  const allowed = await checkRateLimit(`reset:${email}`, { max: 3, windowMs: 15 * 60 * 1000 });
+  if (allowed) {
+    const baseUrl = await getBaseUrl();
+    await issuePasswordResetToken(email, baseUrl);
+  }
+  // Always succeed regardless of whether the email exists or the request was rate-limited,
+  // to avoid account enumeration.
   return { success: true };
 }
 

@@ -1,11 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import { Tag } from "@/components/ui/Tag";
 import { Button } from "@/components/ui/Button";
 import { Table, TD, TH, TR } from "@/components/ui/Table";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { statusVariant } from "../data";
 import type { AdminConsoleFlow } from "../useAdminConsole";
 
 export function Customers({ flow }: { flow: AdminConsoleFlow }) {
   const { state, toggleCustomerSuspend } = flow;
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const confirmCustomer = state.customers.find((c) => c.id === confirmId);
 
   return (
     <>
@@ -32,9 +38,15 @@ export function Customers({ flow }: { flow: AdminConsoleFlow }) {
                 <Tag variant={statusVariant(c.status)}>{c.status}</Tag>
               </TD>
               <TD>
-                <Button variant="ghost" onClick={() => toggleCustomerSuspend(c.id)}>
-                  {c.status === "Suspended" ? "Reinstate" : "Suspend"}
-                </Button>
+                {c.status === "Suspended" ? (
+                  <Button variant="ghost" onClick={() => toggleCustomerSuspend(c.id)}>
+                    Reinstate
+                  </Button>
+                ) : (
+                  <Button variant="ghost" onClick={() => setConfirmId(c.id)}>
+                    Suspend
+                  </Button>
+                )}
               </TD>
             </TR>
           ))}
@@ -47,6 +59,18 @@ export function Customers({ flow }: { flow: AdminConsoleFlow }) {
           )}
         </tbody>
       </Table>
+
+      <ConfirmDialog
+        open={!!confirmCustomer}
+        title="Suspend customer?"
+        body={`${confirmCustomer?.name ?? "This customer"} won't be able to book new services until reinstated.`}
+        confirmLabel="Suspend"
+        onCancel={() => setConfirmId(null)}
+        onConfirm={() => {
+          if (confirmId) toggleCustomerSuspend(confirmId);
+          setConfirmId(null);
+        }}
+      />
     </>
   );
 }

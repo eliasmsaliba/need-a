@@ -2,6 +2,7 @@
 
 import { db } from "@/db";
 import { providerProfiles } from "@/db/schema";
+import { encrypt } from "@/lib/encryption";
 
 export type ProviderStepInput =
   | {
@@ -32,14 +33,30 @@ export async function saveProviderStep(
   userId: string,
   input: ProviderStepInput,
 ): Promise<{ success: true }> {
-  const { step, ...fields } = input;
-
   const insertValues =
-    step === "business"
-      ? fields
-      : step === "availability"
-        ? fields
-        : { ...fields, status: "pending_verification" as const };
+    input.step === "business"
+      ? {
+          bizName: input.bizName,
+          bizPhone: input.bizPhone,
+          bizTradingName: input.bizTradingName,
+          selectedCategories: input.selectedCategories,
+          serviceRadius: input.serviceRadius,
+        }
+      : input.step === "availability"
+        ? {
+            selectedDays: input.selectedDays,
+            startTime: input.startTime,
+            endTime: input.endTime,
+            hourlyRate: input.hourlyRate,
+            calloutFee: input.calloutFee,
+          }
+        : {
+            bankName: input.bankName,
+            accountHolder: input.accountHolder,
+            accountNumber: encrypt(input.accountNumber),
+            branchCode: input.branchCode,
+            status: "pending_verification" as const,
+          };
 
   await db
     .insert(providerProfiles)
